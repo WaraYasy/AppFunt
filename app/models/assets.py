@@ -1,11 +1,18 @@
-from app.extensions import db
+"""_summary_
 
+"""
+from datetime import datetime
 
-class Asset(db.Model):
+from sqlalchemy import Column, ForeignKey, String
+
+from app.database import Base
+
+class Asset(Base):
     __tablename__ = "assets"
 
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(120), nullable=False)
-
-    def __repr__(self):
-        return f"<Asset {self.nombre}>"
+    id = Column(String(36), primary_key=True, nullable=False)
+    codigo = Column(String(6), unique=True, nullable=True, index=True)
+    id_user = Column(String(36), ForeignKey("user.id"), nullable=False)
+    nombre = Column(String(100), nullable=False)
+    created = Column(datetime, default=datetime.now, nullable=False)
+    estado = Column(String(20), default="Disponible", nullable=False)   
