@@ -2,4 +2,39 @@
 
 {% block content %}
 <h1>AppWara</h1>
+
+<section class="stats">
+  <div class="stat-card">
+    <span class="stat-value">{{ total_empleados }}</span>
+    <span class="stat-label">Empleados</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-value">{{ total_assets }}</span>
+    <span class="stat-label">Assets</span>
+  </div>
+</section>
+
+<section>
+  <h2>Assets por categoría</h2>
+  {% if assets_por_categoria %}
+  <table>
+    <thead>
+      <tr>
+        <th>Categoría</th>
+        <th>Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for categoria, cantidad in assets_por_categoria %}
+      <tr>
+        <td>{{ categoria }}</td>
+        <td>{{ cantidad }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Todavía no hay assets registrados.</p>
+  {% endif %}
+</section>
 {% endblock %}
