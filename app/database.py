@@ -1,41 +1,25 @@
-"""Configuración de la base de datos con SQLAlchemy.
+"""Configuración de la base de datos con SQLAlchemy 2.0.
 
-Este módulo configura el motor de SQLAlchemy, la sesión de base de datos
-y la clase base para los modelos. Soporta tanto SQLite como PostgreSQL.
-
-Autor: Wara
+Define el engine, la fábrica de sesiones y la clase Base de la que
+heredan todos los modelos.
 """
-
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
 
-from app.config import settings
+from app.config import Config
 
-is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+is_sqlite = Config.SQLALCHEMY_DATABASE_URI.startswith("sqlite")
 
-# Configurar engine según el tipo de base de datos
 engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False}, 
+    Config.SQLALCHEMY_DATABASE_URI,
+    connect_args={"check_same_thread": False} if is_sqlite else {},
     echo=False,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+SessionLocal = scoped_session(
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+)
 
 
-# Dependencia para obtener la sesión de BD
-def get_db():
-    """Dependencia de FastAPI para obtener una sesión de base de datos.
-
-    Crea una nueva sesión de base de datos para cada petición
-    y la cierra automáticamente al finalizar.
-
-    Yields:
-        Session: Sesión de SQLAlchemy para realizar operaciones de BD.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+class Base(DeclarativeBase):
+    pass
