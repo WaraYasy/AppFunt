@@ -1,6 +1,6 @@
 """Repositorio de acceso a datos para assets (equipo tecnológico)."""
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.assets import Asset
 
@@ -23,5 +23,29 @@ class AssetRepository:
         return (
             self.db.query(Asset.categoria, func.count(Asset.id))
             .group_by(Asset.categoria)
+            .all()
+        )
+
+    def count_disponibles(self) -> int:
+        return (
+            self.db.query(func.count(Asset.id))
+            .filter(Asset.estado == "Disponible")
+            .scalar()
+        )
+
+    def count_asignados(self) -> int:
+        return (
+            self.db.query(func.count(Asset.id))
+            .filter(Asset.id_user.isnot(None))
+            .scalar()
+        )
+
+    def get_recientes(self, limite: int = 4) -> list[Asset]:
+        """Devuelve los assets más recientemente creados, con su usuario cargado."""
+        return (
+            self.db.query(Asset)
+            .options(joinedload(Asset.usuario))
+            .order_by(Asset.created.desc())
+            .limit(limite)
             .all()
         )
