@@ -1,0 +1,47 @@
+<aside class="sidebar">
+  <div>
+    <div class="sidebar__brand">
+      <div class="sidebar__logo">{{ t('brand.initials') }}</div>
+      <div>
+        <div class="sidebar__brand-name">{{ t('brand.name') }}</div>
+        <div class="sidebar__brand-tag">{{ t('brand.tagline') }}</div>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a href="{{ url_for('base.index') }}" class="nav-link is-active" aria-current="page">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>{{ t('nav.dashboard') }}</span>
+      </a>
+      <a href="#" class="nav-link">
+        <span class="material-symbols-outlined">devices</span>
+        <span>{{ t('nav.assets') }}</span>
+      </a>
+      <a href="#" class="nav-link">
+        <span class="material-symbols-outlined">badge</span>
+        <span>{{ t('nav.people') }}</span>
+      </a>
+      <a href="#" class="nav-link">
+        <span class="material-symbols-outlined">domain</span>
+        <span>{{ t('nav.locations') }}</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sidebar__footer">
+    <a href="#" class="nav-link">
+      <span class="material-symbols-outlined">settings</span>
+      <span>{{ t('nav.settings') }}</span>
+    </a>
+
+    <div class="sidebar__account">
+      <div class="sidebar__avatar">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <div>
+        <div class="sidebar__account-name">{{ t('sidebar.guest_name') }}</div>
+        <div class="sidebar__account-role">{{ t('sidebar.guest_role') }}</div>
+      </div>
+    </div>
+  </div>
+</aside>

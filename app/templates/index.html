@@ -1,40 +1,112 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1>AppWara</h1>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+{% endblock %}
 
-<section class="stats">
-  <div class="stat-card">
-    <span class="stat-value">{{ total_empleados }}</span>
-    <span class="stat-label">Empleados</span>
+{% block content %}
+<section class="hero">
+  <h1 class="hero__title">{{ t('home.greeting') }}</h1>
+  <p class="hero__subtitle">{{ t('home.subtitle') }}</p>
+</section>
+
+<section class="kpi-grid" aria-label="{{ t('home.kpi_section_label') }}">
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('home.kpi_total_label') }}</span>
+      <span class="material-symbols-outlined kpi-card__icon">inventory_2</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_assets }}</span>
+      <p class="kpi-card__caption">{{ t('home.kpi_total_caption') }}</p>
+    </div>
   </div>
-  <div class="stat-card">
-    <span class="stat-value">{{ total_assets }}</span>
-    <span class="stat-label">Assets</span>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('home.kpi_assigned_label') }}</span>
+      <span class="badge badge-info">{{ porcentaje_asignados }}%</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_asignados }}</span>
+      <p class="kpi-card__caption">{{ t('home.kpi_assigned_caption') }}</p>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('home.kpi_available_label') }}</span>
+      <span class="badge badge-success">{{ t('home.kpi_available_badge') }}</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_disponibles }}</span>
+      <p class="kpi-card__caption">{{ t('home.kpi_available_caption') }}</p>
+    </div>
   </div>
 </section>
 
-<section>
-  <h2>Assets por categoría</h2>
-  {% if assets_por_categoria %}
-  <table>
-    <thead>
-      <tr>
-        <th>Categoría</th>
-        <th>Cantidad</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for categoria, cantidad in assets_por_categoria %}
-      <tr>
-        <td>{{ categoria }}</td>
-        <td>{{ cantidad }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>Todavía no hay assets registrados.</p>
-  {% endif %}
+<section class="quick-actions" aria-label="{{ t('home.quick_actions_label') }}">
+  <button
+    type="button"
+    class="btn btn-pill"
+    data-action="new-asset"
+    data-placeholder="{{ t('home.quick_new_asset_placeholder') }}"
+  >
+    <span class="material-symbols-outlined quick-actions__icon-primary">add_circle</span>
+    <span>{{ t('home.quick_new_asset') }}</span>
+  </button>
+  <button
+    type="button"
+    class="btn btn-pill"
+    data-action="focus-search"
+    data-placeholder="{{ t('home.quick_find_placeholder') }}"
+  >
+    <span class="material-symbols-outlined">search</span>
+    <span>{{ t('home.quick_find_asset') }}</span>
+  </button>
+  <button type="button" class="btn btn-pill" data-action="filter-available" data-value="estado:disponible">
+    <span class="material-symbols-outlined quick-actions__icon-success">check_circle</span>
+    <span>{{ t('home.quick_view_available') }} ({{ total_disponibles }})</span>
+  </button>
+</section>
+
+<section aria-label="{{ t('home.recent_title') }}">
+  <div class="section-header">
+    <h2 class="section-title">{{ t('home.recent_title') }}</h2>
+    <a href="#" class="section-link">
+      <span>{{ t('home.recent_view_all') }} ({{ total_assets }})</span>
+      <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+  </div>
+
+  <div class="card movement-list">
+    {% for asset in assets_recientes %}
+    <div class="movement-item">
+      <div class="movement-item__main">
+        <span class="movement-item__dot {{ estado_dot_class(asset) }}"></span>
+        <div>
+          <div class="movement-item__title-row">
+            <span class="movement-item__name">{{ asset.nombre }}</span>
+            <span class="badge">{{ asset.categoria }}</span>
+          </div>
+          <div class="movement-item__meta">
+            {% if asset.usuario %}
+            <span>{{ t('home.recent_assigned_to') }} <strong>{{ asset.usuario.nombre }} {{ asset.usuario.apellido }}</strong></span>
+            {% else %}
+            <span>{{ asset.estado }}</span>
+            {% endif %}
+            {% if asset.codigo %}
+            <span>&bull;</span>
+            <span class="movement-item__code">{{ t('home.code_label') }}: {{ asset.codigo }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <span class="material-symbols-outlined movement-item__chevron">chevron_right</span>
+    </div>
+    {% else %}
+    <p class="movement-empty">{{ t('home.recent_empty') }}</p>
+    {% endfor %}
+  </div>
 </section>
 {% endblock %}

@@ -1,0 +1,27 @@
+<header class="topbar">
+  <div class="search-field">
+    <span class="material-symbols-outlined search-field__icon">search</span>
+    <input
+      id="globalSearch"
+      type="text"
+      class="search-field__input"
+      placeholder="{{ t('topbar.search_placeholder') }}"
+    />
+    <kbd class="search-field__kbd">{{ t('topbar.search_shortcut') }}</kbd>
+  </div>
+
+  <div class="topbar__actions">
+    <button type="button" class="btn btn-icon" aria-label="{{ t('topbar.notifications') }}">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-action="new-asset"
+      data-placeholder="{{ t('home.quick_new_asset_placeholder') }}"
+    >
+      <span class="material-symbols-outlined">add</span>
+      <span>{{ t('topbar.new_asset') }}</span>
+    </button>
+  </div>
+</header>

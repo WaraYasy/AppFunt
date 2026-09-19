@@ -1,12 +1,40 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ current_locale }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}AppWara{% endblock %}</title>
+    <title>{% block title %}{{ t('brand.name') }}{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}" />
+    {% block extra_css %}{% endblock %}
   </head>
   <body>
-    {% block content %}{% endblock %}
+    <div class="app-shell">
+      {% include "partials/sidebar.html" %}
+
+      <div class="app-main">
+        {% include "partials/topbar.html" %}
+
+        <main class="app-content">
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+    {% block extra_js %}{% endblock %}
   </body>
 </html>
