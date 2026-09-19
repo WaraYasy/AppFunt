@@ -20,4 +20,9 @@ def create_app(config_class=Config):
 
     app.register_blueprint(base_bp)
 
+    from app import i18n, template_helpers
+
+    i18n.init_app(app)
+    template_helpers.init_app(app)
+
     return app
