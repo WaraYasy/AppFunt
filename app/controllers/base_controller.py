@@ -15,11 +15,20 @@ def index():
 
     total_empleados = user_repo.count_all()
     total_assets = asset_repo.count_all()
-    assets_por_categoria = asset_repo.count_by_categoria()
+    total_disponibles = asset_repo.count_disponibles()
+    total_asignados = asset_repo.count_asignados()
+    assets_recientes = asset_repo.get_recientes(limite=4)
+
+    porcentaje_asignados = (
+        round(total_asignados / total_assets * 100) if total_assets else 0
+    )
 
     return render_template(
         "index.html",
         total_empleados=total_empleados,
         total_assets=total_assets,
-        assets_por_categoria=assets_por_categoria,
+        total_disponibles=total_disponibles,
+        total_asignados=total_asignados,
+        porcentaje_asignados=porcentaje_asignados,
+        assets_recientes=assets_recientes,
     )
