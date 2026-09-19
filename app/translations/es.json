@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "Company Wara",
+    "initials": "CW",
+    "tagline": "Asset Hub"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Activos / Recursos",
+    "people": "Personas",
+    "locations": "Sedes",
+    "settings": "Configuración"
+  },
+  "sidebar": {
+    "guest_name": "Invitado",
+    "guest_role": "Sin sesión iniciada"
+  },
+  "topbar": {
+    "search_placeholder": "Buscar por nombre, serie o responsable...",
+    "search_shortcut": "⌘K",
+    "notifications": "Notificaciones",
+    "new_asset": "Nuevo Activo"
+  },
+  "home": {
+    "greeting": "Hola 👋",
+    "subtitle": "Gestión y disponibilidad de recursos IT",
+    "kpi_section_label": "Resumen de Inventario",
+    "kpi_total_label": "Total Activos",
+    "kpi_total_caption": "en inventario global",
+    "kpi_assigned_label": "En Uso / Asignados",
+    "kpi_assigned_caption": "con colaboradores activos",
+    "kpi_available_label": "Disponibles",
+    "kpi_available_badge": "Listos para entrega",
+    "kpi_available_caption": "en stock para despliegue",
+    "quick_actions_label": "Accesos Directos",
+    "quick_new_asset": "Registrar nuevo equipo",
+    "quick_new_asset_placeholder": "Escribe nombre o modelo del nuevo activo...",
+    "quick_find_asset": "Localizar activo por serie",
+    "quick_find_placeholder": "Buscando serie: ej. APPL-8921...",
+    "quick_view_available": "Ver equipos disponibles",
+    "recent_title": "Últimos movimientos",
+    "recent_view_all": "Ver todos los activos",
+    "recent_assigned_to": "Asignado a",
+    "recent_empty": "Todavía no hay actividad reciente.",
+    "code_label": "Código"
+  }
+}

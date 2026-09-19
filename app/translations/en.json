@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "Company Wara",
+    "initials": "CW",
+    "tagline": "Asset Hub"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Assets / Resources",
+    "people": "People",
+    "locations": "Locations",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "guest_name": "Guest",
+    "guest_role": "Not signed in"
+  },
+  "topbar": {
+    "search_placeholder": "Search by name, serial or owner...",
+    "search_shortcut": "⌘K",
+    "notifications": "Notifications",
+    "new_asset": "New Asset"
+  },
+  "home": {
+    "greeting": "Hi there 👋",
+    "subtitle": "IT resource management and availability",
+    "kpi_section_label": "Inventory Summary",
+    "kpi_total_label": "Total Assets",
+    "kpi_total_caption": "across global inventory",
+    "kpi_assigned_label": "In Use / Assigned",
+    "kpi_assigned_caption": "with active collaborators",
+    "kpi_available_label": "Available",
+    "kpi_available_badge": "Ready for delivery",
+    "kpi_available_caption": "in stock for deployment",
+    "quick_actions_label": "Quick Actions",
+    "quick_new_asset": "Register new equipment",
+    "quick_new_asset_placeholder": "Type the name or model of the new asset...",
+    "quick_find_asset": "Find asset by serial",
+    "quick_find_placeholder": "Searching serial: e.g. APPL-8921...",
+    "quick_view_available": "View available equipment",
+    "recent_title": "Recent activity",
+    "recent_view_all": "View all assets",
+    "recent_assigned_to": "Assigned to",
+    "recent_empty": "No recent activity yet.",
+    "code_label": "Code"
+  }
+}
