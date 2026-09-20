@@ -2,12 +2,28 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
+from app.database import generar_codigo
 from app.models.assets import Asset
 
 
 class AssetRepository:
     def __init__(self, db: Session):
         self.db = db
+
+    def create(self, **campos) -> Asset:
+        """Crea y persiste un Asset. `codigo` se autogenera si no viene en `campos`."""
+        campos.setdefault("codigo", generar_codigo(self.db, Asset.codigo, prefijo="NX-"))
+        asset = Asset(**campos)
+        self.db.add(asset)
+        self.db.commit()
+        self.db.refresh(asset)
+        return asset
+
+    def existe_numero_serie(self, numero_serie: str) -> bool:
+        return (
+            self.db.query(Asset.id).filter(Asset.numero_serie == numero_serie).first()
+            is not None
+        )
 
     def get_all(self) -> list[Asset]:
         """Devuelve todos los assets, con su custodio cargado, del más reciente al más antiguo."""

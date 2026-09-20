@@ -1,7 +1,9 @@
 """Controlador para la vista de Personal (directorio de colaboradores)."""
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from app.database import SessionLocal
+from app.forms import NuevoColaboradorForm
+from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset
 from app.models.personal import Personal, PersonalModalidad
 from app.repositories.personal_repository import PersonalRepository
@@ -38,10 +40,21 @@ def _serializar_persona(persona: Personal) -> dict:
     }
 
 
-@personal_bp.route("/personal")
-def index():
+def _preparar_formulario(form: NuevoColaboradorForm) -> None:
+    """Completa los choices de un NuevoColaboradorForm."""
+    locale = session.get("locale", DEFAULT_LOCALE)
+    form.modalidad.choices = [("", translate("personal.modal_field_modality_empty", locale))] + [
+        (modalidad, modalidad) for modalidad in PersonalModalidad.OPCIONES
+    ]
+
+
+def _contexto_index(form: NuevoColaboradorForm | None = None) -> dict:
     db = SessionLocal()
     personal_repo = PersonalRepository(db)
+
+    if form is None:
+        form = NuevoColaboradorForm()
+    _preparar_formulario(form)
 
     personal = personal_repo.get_all()
     total_empleados = len(personal)
@@ -69,13 +82,47 @@ def index():
         },
     ]
 
-    return render_template(
-        "personal.html",
-        personal=personal,
-        personal_json=[_serializar_persona(persona) for persona in personal],
-        total_empleados=total_empleados,
-        con_activos=con_activos,
-        sin_activos=sin_activos,
-        porcentaje_con_activos=porcentaje_con_activos,
-        filtros_personal=filtros_personal,
-    )
+    return {
+        "personal": personal,
+        "personal_json": [_serializar_persona(persona) for persona in personal],
+        "total_empleados": total_empleados,
+        "con_activos": con_activos,
+        "sin_activos": sin_activos,
+        "porcentaje_con_activos": porcentaje_con_activos,
+        "filtros_personal": filtros_personal,
+        "form": form,
+        "abrir_modal_nuevo": False,
+    }
+
+
+@personal_bp.route("/personal")
+def index():
+    return render_template("personal.html", **_contexto_index())
+
+
+@personal_bp.route("/personal/nuevo", methods=["POST"])
+def crear():
+    db = SessionLocal()
+    personal_repo = PersonalRepository(db)
+
+    form = NuevoColaboradorForm()
+    _preparar_formulario(form)
+
+    if form.validate_on_submit():
+        if form.email.data and personal_repo.existe_email(form.email.data):
+            form.email.errors.append("personal.error_duplicate_email")
+        else:
+            personal_repo.create(
+                nombre=form.nombre.data.strip(),
+                apellido=form.apellido.data.strip(),
+                email=form.email.data.strip() or None,
+                rol=form.rol.data.strip() or None,
+                departamento=form.departamento.data.strip() or None,
+                ubicacion=form.ubicacion.data.strip() or None,
+                modalidad=form.modalidad.data or None,
+            )
+            return redirect(url_for("personal.index"))
+
+    contexto = _contexto_index(form=form)
+    contexto["abrir_modal_nuevo"] = True
+    return render_template("personal.html", **contexto), 400

@@ -2,12 +2,25 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 
+from app.database import generar_codigo
 from app.models.personal import Personal
 
 
 class PersonalRepository:
     def __init__(self, db: Session):
         self.db = db
+
+    def create(self, **campos) -> Personal:
+        """Crea y persiste una Personal. `codigo` se autogenera si no viene en `campos`."""
+        campos.setdefault("codigo", generar_codigo(self.db, Personal.codigo, prefijo="EMP-"))
+        persona = Personal(**campos)
+        self.db.add(persona)
+        self.db.commit()
+        self.db.refresh(persona)
+        return persona
+
+    def existe_email(self, email: str) -> bool:
+        return self.db.query(Personal.id).filter(Personal.email == email).first() is not None
 
     def get_all(self) -> list[Personal]:
         """Devuelve todo el personal, con sus assets cargados, ordenado por nombre."""

@@ -1,9 +1,12 @@
 """Controlador para la vista de Activos (inventario de hardware)."""
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from app.database import SessionLocal
+from app.forms import NuevoActivoForm
+from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset, AssetCategoria
 from app.repositories.asset_repository import AssetRepository
+from app.repositories.personal_repository import PersonalRepository
 from app.template_helpers import asset_icon, person_initials
 
 assets_bp = Blueprint("assets", __name__)
@@ -16,6 +19,8 @@ CATEGORIAS_FILTRO = [
     (AssetCategoria.REDES, "assets.filter_redes"),
     (AssetCategoria.PERIFERICO, "assets.filter_periferico"),
 ]
+
+SIN_ASIGNAR = ""  # valor del <option>/campo id_personal que representa "sin custodio"
 
 
 def _serializar_asset(asset: Asset) -> dict:
@@ -49,10 +54,26 @@ def _serializar_asset(asset: Asset) -> dict:
     }
 
 
-@assets_bp.route("/activos")
-def index():
+def _preparar_formulario(form: NuevoActivoForm, personal_repo: PersonalRepository) -> None:
+    """Completa los choices de un NuevoActivoForm con datos de la base."""
+    locale = session.get("locale", DEFAULT_LOCALE)
+    form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
+    form.id_personal.choices = [
+        (SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))
+    ] + [
+        (persona.id, f"{persona.nombre} {persona.apellido}" + (f" ({persona.rol})" if persona.rol else ""))
+        for persona in personal_repo.get_all()
+    ]
+
+
+def _contexto_index(form: NuevoActivoForm | None = None) -> dict:
     db = SessionLocal()
     asset_repo = AssetRepository(db)
+    personal_repo = PersonalRepository(db)
+
+    if form is None:
+        form = NuevoActivoForm()
+    _preparar_formulario(form, personal_repo)
 
     assets = asset_repo.get_all()
     total_assets = len(assets)
@@ -72,13 +93,46 @@ def index():
         for categoria, label_key in CATEGORIAS_FILTRO
     ]
 
-    return render_template(
-        "assets.html",
-        assets=assets,
-        assets_json=[_serializar_asset(asset) for asset in assets],
-        total_assets=total_assets,
-        total_disponibles=total_disponibles,
-        total_asignados=total_asignados,
-        porcentaje_asignados=porcentaje_asignados,
-        filtros_categoria=filtros_categoria,
-    )
+    return {
+        "assets": assets,
+        "assets_json": [_serializar_asset(asset) for asset in assets],
+        "total_assets": total_assets,
+        "total_disponibles": total_disponibles,
+        "total_asignados": total_asignados,
+        "porcentaje_asignados": porcentaje_asignados,
+        "filtros_categoria": filtros_categoria,
+        "form": form,
+        "abrir_modal_nuevo": False,
+    }
+
+
+@assets_bp.route("/activos")
+def index():
+    return render_template("assets.html", **_contexto_index())
+
+
+@assets_bp.route("/activos/nuevo", methods=["POST"])
+def crear():
+    db = SessionLocal()
+    asset_repo = AssetRepository(db)
+    personal_repo = PersonalRepository(db)
+
+    form = NuevoActivoForm()
+    _preparar_formulario(form, personal_repo)
+
+    if form.validate_on_submit():
+        if form.numero_serie.data and asset_repo.existe_numero_serie(form.numero_serie.data):
+            form.numero_serie.errors.append("assets.error_duplicate_serial")
+        else:
+            asset_repo.create(
+                nombre=form.nombre.data.strip(),
+                categoria=form.categoria.data,
+                numero_serie=form.numero_serie.data.strip() or None,
+                ubicacion=form.ubicacion.data.strip() or None,
+                id_personal=form.id_personal.data or None,
+            )
+            return redirect(url_for("assets.index"))
+
+    contexto = _contexto_index(form=form)
+    contexto["abrir_modal_nuevo"] = True
+    return render_template("assets.html", **contexto), 400

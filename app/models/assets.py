@@ -25,7 +25,7 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
-    codigo: Mapped[str | None] = mapped_column(String(6), unique=True, index=True)
+    codigo: Mapped[str | None] = mapped_column(String(10), unique=True, index=True)
     id_personal: Mapped[str | None] = mapped_column(String(36), ForeignKey("personal.id"))
     nombre: Mapped[str] = mapped_column(String(100))
     categoria: Mapped[str] = mapped_column(String(20), default=AssetCategoria.OTRO)
@@ -39,6 +39,7 @@ class Asset(Base):
     almacenamiento: Mapped[str | None] = mapped_column(String(120))
     sistema_operativo: Mapped[str | None] = mapped_column(String(80))
     garantia: Mapped[str | None] = mapped_column(String(120))
+    ubicacion: Mapped[str | None] = mapped_column(String(120))
 
     custodio: Mapped["Personal"] = relationship(back_populates="assets")
 
