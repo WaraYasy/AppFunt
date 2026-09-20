@@ -14,10 +14,6 @@
     <p class="page-header__subtitle">{{ t('personal.subtitle') }}</p>
   </div>
   <div class="page-header__actions">
-    <button type="button" class="btn btn-pill">
-      <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
-      <span>{{ t('personal.export') }}</span>
-    </button>
     <button type="button" class="btn btn-primary" id="openNuevoColaboradorBtn">
       <span class="material-symbols-outlined">person_add</span>
       <span>{{ t('personal.register') }}</span>
@@ -219,10 +215,6 @@
         </div>
         <div class="card spec-list">
           <div class="spec-row">
-            <span class="spec-row__label">{{ t('personal.drawer_role') }}</span>
-            <span class="spec-row__value" id="drawerRole"></span>
-          </div>
-          <div class="spec-row">
             <span class="spec-row__label">{{ t('personal.drawer_department') }}</span>
             <span class="spec-row__value" id="drawerDepartment"></span>
           </div>
@@ -293,10 +285,9 @@
       </div>
       {{ campo_texto(form.email, t('personal.modal_field_email'), placeholder="elena.salazar@empresa.com") }}
       <div class="field-grid">
-        {{ campo_texto(form.rol, t('personal.modal_field_role'), placeholder="Senior Product Designer") }}
         {{ campo_select(form.departamento, t('personal.modal_field_department')) }}
+        {{ campo_select(form.ubicacion, t('personal.modal_field_location')) }}
       </div>
-      {{ campo_select(form.ubicacion, t('personal.modal_field_location')) }}
       {{ campo_chips(form.modalidad, t('personal.modal_field_modality')) }}
     </div>
     <div class="modal__footer">

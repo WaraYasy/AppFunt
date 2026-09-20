@@ -74,11 +74,6 @@
   color: var(--color-on-surface);
 }
 
-.custodian-card__role {
-  font-size: var(--text-xs);
-  color: var(--color-on-surface-muted);
-}
-
 .custodian-card__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -67,7 +67,6 @@ def _serializar_persona(persona: Personal) -> dict:
         "nombre": f"{persona.nombre} {persona.apellido}",
         "iniciales": person_initials(persona),
         "email": persona.email,
-        "rol": persona.rol,
         "departamento": persona.departamento,
         "ubicacion": persona.ubicacion,
         "modalidad": persona.modalidad,
@@ -175,7 +174,6 @@ def crear():
                 nombre=form.nombre.data.strip(),
                 apellido=form.apellido.data.strip(),
                 email=_limpio(form.email.data),
-                rol=_limpio(form.rol.data),
                 departamento=form.departamento.data or None,
                 ubicacion=form.ubicacion.data or None,
                 modalidad=form.modalidad.data or None,
@@ -202,7 +200,7 @@ def editar(id_persona):
     _preparar_formulario(form)
 
     if form.validate_on_submit():
-        # nombre/apellido/cargo no se pueden editar (ver forms.py).
+        # nombre/apellido no se pueden editar (ver forms.py).
         if form.email.data and personal_repo.existe_email(form.email.data, excluir_id=persona.id):
             form.email.errors.append("personal.error_duplicate_email")
         elif _guardar(

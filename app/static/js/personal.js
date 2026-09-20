@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const drawerTag = document.getElementById("drawerTag");
   const drawerName = document.getElementById("drawerName");
   const drawerEmail = document.getElementById("drawerEmail");
-  const drawerRole = document.getElementById("drawerRole");
   const drawerDepartment = document.getElementById("drawerDepartment");
   const drawerLocation = document.getElementById("drawerLocation");
   const drawerSince = document.getElementById("drawerSince");
@@ -134,7 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerName.textContent = persona.nombre;
     drawerEmail.textContent = persona.email || i18n.noData;
 
-    fillSpec(drawerRole, persona.rol);
     fillSpec(drawerDepartment, persona.departamento);
     const modalidadYUbicacion = [persona.modalidad, persona.ubicacion].filter(Boolean).join(" — ");
     fillSpec(drawerLocation, modalidadYUbicacion);

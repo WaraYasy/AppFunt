@@ -59,7 +59,6 @@ class Personal(Base):
     codigo: Mapped[str | None] = mapped_column(String(10), unique=True, index=True)
 
     # Datos organizativos (opcionales, usados en la ficha de activo asignado)
-    rol: Mapped[str | None] = mapped_column(String(80))
     departamento: Mapped[str | None] = mapped_column(String(80))
     ubicacion: Mapped[str | None] = mapped_column(String(120))
     modalidad: Mapped[str | None] = mapped_column(String(20))
@@ -91,7 +90,7 @@ class Personal(Base):
         value = validar_longitud(self, key, value)
         return validar_opciones(key, value, PersonalUbicacion.OPCIONES)
 
-    @validates("codigo", "rol")
+    @validates("codigo")
     def _validar_opcionales(self, key, value):
         return validar_longitud(self, key, value)
 

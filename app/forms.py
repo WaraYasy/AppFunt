@@ -53,7 +53,6 @@ class NuevoColaboradorForm(FlaskForm):
     nombre = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
     apellido = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
     email = StringField(validators=[Optional(), Email(message="forms.error_email"), Length(max=120)])
-    rol = StringField(validators=[Optional(), Length(max=80)])
     departamento = SelectField(validators=[Optional()])
     ubicacion = SelectField(validators=[Optional()])
     modalidad = RadioField(validators=[Optional()], default="")
@@ -61,9 +60,7 @@ class NuevoColaboradorForm(FlaskForm):
 
 class EditarColaboradorForm(FlaskForm):
     """Solo lo que tiene sentido que cambie: contacto y datos organizativos.
-    Nombre/apellido no se exponen acá (ver docstring del módulo); cargo
-    tampoco: se fija al ingresar, no aporta lo suficiente como para
-    justificar mantenerlo editable."""
+    Nombre/apellido no se exponen acá (ver docstring del módulo)."""
 
     email = StringField(validators=[Optional(), Email(message="forms.error_email"), Length(max=120)])
     departamento = SelectField(validators=[Optional()])

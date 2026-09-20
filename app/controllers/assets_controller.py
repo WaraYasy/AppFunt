@@ -82,7 +82,6 @@ def _serializar_asset(asset: Asset) -> dict:
             {
                 "nombre": f"{custodio.nombre} {custodio.apellido}",
                 "iniciales": person_initials(custodio),
-                "rol": custodio.rol,
                 "departamento": custodio.departamento,
                 "ubicacion": custodio.ubicacion,
             }
@@ -96,8 +95,7 @@ def _choices_id_personal(personal_repo: PersonalRepository) -> list[tuple[str, s
     """Choices de custodio, comunes al form de alta y al de edición."""
     locale = _locale()
     return [(SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))] + [
-        (persona.id, f"{persona.nombre} {persona.apellido}" + (f" ({persona.rol})" if persona.rol else ""))
-        for persona in personal_repo.get_all()
+        (persona.id, f"{persona.nombre} {persona.apellido}") for persona in personal_repo.get_all()
     ]
 
 

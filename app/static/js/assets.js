@@ -90,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
     identity.appendChild(el("div", "custodian-card__avatar", usuario.iniciales));
     const identityText = el("div");
     identityText.appendChild(el("div", "custodian-card__name", usuario.nombre));
-    identityText.appendChild(el("div", "custodian-card__role", usuario.rol || ""));
     identity.appendChild(identityText);
 
     const grid = el("div", "custodian-card__grid");
