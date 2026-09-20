@@ -4,6 +4,13 @@
     "initials": "CW",
     "tagline": "Asset Hub"
   },
+  "forms": {
+    "required": "Required",
+    "optional": "Optional",
+    "cancel": "Cancel",
+    "error_required": "This field is required.",
+    "error_email": "That email doesn't look valid."
+  },
   "nav": {
     "dashboard": "Dashboard",
     "assets": "Assets / Resources",
@@ -89,7 +96,17 @@
     "drawer_reassign": "Reassign custodian",
     "drawer_edit": "Edit record",
     "drawer_no_data": "No data",
-    "drawer_close": "Close"
+    "drawer_close": "Close",
+    "modal_title": "New Asset",
+    "modal_subtitle": "Fill in the essential details to register the equipment.",
+    "modal_field_name": "Model or asset name",
+    "modal_field_category": "Resource category",
+    "modal_field_serial": "Serial No. / Service Tag",
+    "modal_field_location": "Physical location",
+    "modal_field_assignment": "Assignment",
+    "modal_field_assignment_empty": "In storage (unassigned)",
+    "modal_submit": "Create asset",
+    "error_duplicate_serial": "An asset with this serial number is already registered."
   },
   "personal": {
     "title": "People",
@@ -135,6 +152,18 @@
     "drawer_manage": "Manage assets",
     "drawer_edit": "Edit record",
     "drawer_close": "Close",
-    "drawer_no_data": "No data"
+    "drawer_no_data": "No data",
+    "modal_title": "New Collaborator",
+    "modal_subtitle": "Fill in the details of the new team member.",
+    "modal_field_name": "First name",
+    "modal_field_lastname": "Last name",
+    "modal_field_email": "Email",
+    "modal_field_role": "Role",
+    "modal_field_department": "Department",
+    "modal_field_location": "Location",
+    "modal_field_modality": "Modality",
+    "modal_field_modality_empty": "Not specified",
+    "modal_submit": "Create collaborator",
+    "error_duplicate_email": "A person with this email is already registered."
   }
 }

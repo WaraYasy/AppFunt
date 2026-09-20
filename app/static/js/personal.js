@@ -129,8 +129,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   drawerClose.addEventListener("click", closeDrawer);
   drawerBackdrop.addEventListener("click", closeDrawer);
+
+  // Modal "Nuevo Colaborador"
+  const nuevoColaboradorModal = document.getElementById("nuevoColaboradorModal");
+  const nuevoColaboradorBackdrop = document.getElementById("nuevoColaboradorBackdrop");
+  const openNuevoColaboradorBtn = document.getElementById("openNuevoColaboradorBtn");
+  const closeNuevoColaboradorBtn = document.getElementById("closeNuevoColaboradorBtn");
+  const cancelNuevoColaboradorBtn = document.getElementById("cancelNuevoColaboradorBtn");
+
+  function openNuevoColaboradorModal() {
+    if (!nuevoColaboradorModal) return;
+    nuevoColaboradorModal.classList.add("is-open");
+    nuevoColaboradorBackdrop.classList.add("is-open");
+  }
+
+  function closeNuevoColaboradorModal() {
+    if (!nuevoColaboradorModal) return;
+    nuevoColaboradorModal.classList.remove("is-open");
+    nuevoColaboradorBackdrop.classList.remove("is-open");
+  }
+
+  if (openNuevoColaboradorBtn) openNuevoColaboradorBtn.addEventListener("click", openNuevoColaboradorModal);
+  if (closeNuevoColaboradorBtn) closeNuevoColaboradorBtn.addEventListener("click", closeNuevoColaboradorModal);
+  if (cancelNuevoColaboradorBtn) cancelNuevoColaboradorBtn.addEventListener("click", closeNuevoColaboradorModal);
+  if (nuevoColaboradorBackdrop) nuevoColaboradorBackdrop.addEventListener("click", closeNuevoColaboradorModal);
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeDrawer();
+    if (event.key !== "Escape") return;
+    closeDrawer();
+    closeNuevoColaboradorModal();
   });
 
   function applyFilters() {

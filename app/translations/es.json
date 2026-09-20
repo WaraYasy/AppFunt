@@ -4,6 +4,13 @@
     "initials": "CW",
     "tagline": "Asset Hub"
   },
+  "forms": {
+    "required": "Requerido",
+    "optional": "Opcional",
+    "cancel": "Cancelar",
+    "error_required": "Este campo es obligatorio.",
+    "error_email": "Ese email no parece válido."
+  },
   "nav": {
     "dashboard": "Dashboard",
     "assets": "Activos / Recursos",
@@ -89,7 +96,17 @@
     "drawer_reassign": "Reasignar custodio",
     "drawer_edit": "Editar ficha",
     "drawer_no_data": "Sin datos",
-    "drawer_close": "Cerrar"
+    "drawer_close": "Cerrar",
+    "modal_title": "Nuevo Activo",
+    "modal_subtitle": "Completá los datos esenciales del equipo para darlo de alta.",
+    "modal_field_name": "Modelo o nombre del activo",
+    "modal_field_category": "Categoría de recurso",
+    "modal_field_serial": "Nº de serie / Service Tag",
+    "modal_field_location": "Ubicación física",
+    "modal_field_assignment": "Asignación",
+    "modal_field_assignment_empty": "En almacén (sin asignar)",
+    "modal_submit": "Crear activo",
+    "error_duplicate_serial": "Ya hay un activo registrado con este número de serie."
   },
   "personal": {
     "title": "Personal",
@@ -135,6 +152,18 @@
     "drawer_manage": "Gestionar activos",
     "drawer_edit": "Editar ficha",
     "drawer_close": "Cerrar",
-    "drawer_no_data": "Sin datos"
+    "drawer_no_data": "Sin datos",
+    "modal_title": "Nuevo Colaborador",
+    "modal_subtitle": "Completá los datos del nuevo integrante del equipo.",
+    "modal_field_name": "Nombre",
+    "modal_field_lastname": "Apellido",
+    "modal_field_email": "Email",
+    "modal_field_role": "Cargo",
+    "modal_field_department": "Departamento",
+    "modal_field_location": "Ubicación",
+    "modal_field_modality": "Modalidad",
+    "modal_field_modality_empty": "Sin especificar",
+    "modal_submit": "Crear colaborador",
+    "error_duplicate_email": "Ya hay una persona registrada con este email."
   }
 }

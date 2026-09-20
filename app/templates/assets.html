@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros/forms.html" import campo_texto, campo_select, campo_chips with context %}
 
 {% block title %}{{ t('assets.title') }} · {{ t('brand.name') }}{% endblock %}
 
@@ -17,12 +18,7 @@
       <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
       <span>{{ t('assets.export') }}</span>
     </button>
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-action="new-asset"
-      data-placeholder="{{ t('home.quick_new_asset_placeholder') }}"
-    >
+    <button type="button" class="btn btn-primary" id="openNuevoActivoBtn">
       <span class="material-symbols-outlined">add</span>
       <span>{{ t('assets.register') }}</span>
     </button>
@@ -259,6 +255,49 @@
     </button>
   </div>
 </aside>
+
+<div class="modal-backdrop {{ 'is-open' if abrir_modal_nuevo else '' }}" id="nuevoActivoBackdrop"></div>
+<div
+  class="modal {{ 'is-open' if abrir_modal_nuevo else '' }}"
+  id="nuevoActivoModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="nuevoActivoTitulo"
+>
+  <form method="post" action="{{ url_for('assets.crear') }}" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon">
+          <span class="material-symbols-outlined">add_circle</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="nuevoActivoTitulo">{{ t('assets.modal_title') }}</h2>
+          <p class="modal__subtitle">{{ t('assets.modal_subtitle') }}</p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeNuevoActivoBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__body">
+      {{ campo_texto(form.nombre, t('assets.modal_field_name'), requerido=True, placeholder='ej. MacBook Pro 16" M3 Pro') }}
+      {{ campo_chips(form.categoria, t('assets.modal_field_category'), requerido=True) }}
+      <div class="field-grid">
+        {{ campo_texto(form.numero_serie, t('assets.modal_field_serial'), placeholder="C02XG78JMD6T") }}
+        {{ campo_texto(form.ubicacion, t('assets.modal_field_location'), placeholder="Madrid Central - Planta 2") }}
+      </div>
+      {{ campo_select(form.id_personal, t('assets.modal_field_assignment')) }}
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelNuevoActivoBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-primary">
+        <span class="material-symbols-outlined">add</span>
+        <span>{{ t('assets.modal_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
 
 <script type="application/json" id="assetsData">{{ assets_json | tojson }}</script>
 <script type="application/json" id="assetsI18n">

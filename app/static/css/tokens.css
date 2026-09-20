@@ -31,6 +31,9 @@
   /* Color / Superficies de estado */
   --color-success-surface: rgba(6, 78, 59, 0.4);
   --color-success-border: rgba(6, 95, 70, 0.5);
+  --color-error: #f87171;
+  --color-error-surface: rgba(248, 113, 113, 0.12);
+  --color-error-border: rgba(248, 113, 113, 0.35);
 
   /* Tipografía */
   --font-sans: "Inter", sans-serif;

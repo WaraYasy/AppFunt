@@ -1,0 +1,51 @@
+{% macro _badge(requerido) %}
+<span class="field__badge {{ 'field__badge--required' if requerido else 'field__badge--optional' }}">
+  {{ t('forms.required') if requerido else t('forms.optional') }}
+</span>
+{% endmacro %}
+
+{% macro campo_texto(field, label, requerido=False, placeholder=None) %}
+<div class="field {{ 'field--invalid' if field.errors else '' }}">
+  <div class="field__label-row">
+    <label class="field__label" for="{{ field.id }}">{{ label }}</label>
+    {{ _badge(requerido) }}
+  </div>
+  {{ field(class_="field__input", placeholder=placeholder or "") }}
+  {% if field.errors %}
+  <span class="field__error">{{ t(field.errors[0]) }}</span>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro campo_select(field, label, requerido=False) %}
+<div class="field {{ 'field--invalid' if field.errors else '' }}">
+  <div class="field__label-row">
+    <label class="field__label" for="{{ field.id }}">{{ label }}</label>
+    {{ _badge(requerido) }}
+  </div>
+  {{ field(class_="field__select") }}
+  {% if field.errors %}
+  <span class="field__error">{{ t(field.errors[0]) }}</span>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro campo_chips(field, label, requerido=False) %}
+<div class="field {{ 'field--invalid' if field.errors else '' }}">
+  <div class="field__label-row">
+    <label class="field__label">{{ label }}</label>
+    {{ _badge(requerido) }}
+  </div>
+  <div class="form-chip-group">
+    {% for opcion in field %}
+    <span class="form-chip-option">
+      {{ opcion }}
+      {{ opcion.label }}
+    </span>
+    {% endfor %}
+  </div>
+  {% if field.errors %}
+  <span class="field__error">{{ t(field.errors[0]) }}</span>
+  {% endif %}
+</div>
+{% endmacro %}

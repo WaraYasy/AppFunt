@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros/forms.html" import campo_texto, campo_chips with context %}
 
 {% block title %}{{ t('personal.title') }} · {{ t('brand.name') }}{% endblock %}
 
@@ -17,7 +18,7 @@
       <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
       <span>{{ t('personal.export') }}</span>
     </button>
-    <button type="button" class="btn btn-primary" data-action="new-asset">
+    <button type="button" class="btn btn-primary" id="openNuevoColaboradorBtn">
       <span class="material-symbols-outlined">person_add</span>
       <span>{{ t('personal.register') }}</span>
     </button>
@@ -260,6 +261,53 @@
     </button>
   </div>
 </aside>
+
+<div class="modal-backdrop {{ 'is-open' if abrir_modal_nuevo else '' }}" id="nuevoColaboradorBackdrop"></div>
+<div
+  class="modal {{ 'is-open' if abrir_modal_nuevo else '' }}"
+  id="nuevoColaboradorModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="nuevoColaboradorTitulo"
+>
+  <form method="post" action="{{ url_for('personal.crear') }}" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon">
+          <span class="material-symbols-outlined">person_add</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="nuevoColaboradorTitulo">{{ t('personal.modal_title') }}</h2>
+          <p class="modal__subtitle">{{ t('personal.modal_subtitle') }}</p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeNuevoColaboradorBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="field-grid">
+        {{ campo_texto(form.nombre, t('personal.modal_field_name'), requerido=True, placeholder="Elena") }}
+        {{ campo_texto(form.apellido, t('personal.modal_field_lastname'), requerido=True, placeholder="Salazar") }}
+      </div>
+      {{ campo_texto(form.email, t('personal.modal_field_email'), placeholder="elena.salazar@empresa.com") }}
+      <div class="field-grid">
+        {{ campo_texto(form.rol, t('personal.modal_field_role'), placeholder="Senior Product Designer") }}
+        {{ campo_texto(form.departamento, t('personal.modal_field_department'), placeholder="Diseño UX/UI") }}
+      </div>
+      {{ campo_texto(form.ubicacion, t('personal.modal_field_location'), placeholder="Presencial · Sede Central") }}
+      {{ campo_chips(form.modalidad, t('personal.modal_field_modality')) }}
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelNuevoColaboradorBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-primary">
+        <span class="material-symbols-outlined">person_add</span>
+        <span>{{ t('personal.modal_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
 
 <script type="application/json" id="personalData">{{ personal_json | tojson }}</script>
 <script type="application/json" id="personalI18n">

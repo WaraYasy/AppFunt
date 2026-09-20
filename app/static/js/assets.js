@@ -128,8 +128,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   drawerClose.addEventListener("click", closeDrawer);
   drawerBackdrop.addEventListener("click", closeDrawer);
+
+  // Modal "Nuevo Activo"
+  const nuevoActivoModal = document.getElementById("nuevoActivoModal");
+  const nuevoActivoBackdrop = document.getElementById("nuevoActivoBackdrop");
+  const openNuevoActivoBtn = document.getElementById("openNuevoActivoBtn");
+  const closeNuevoActivoBtn = document.getElementById("closeNuevoActivoBtn");
+  const cancelNuevoActivoBtn = document.getElementById("cancelNuevoActivoBtn");
+
+  function openNuevoActivoModal() {
+    if (!nuevoActivoModal) return;
+    nuevoActivoModal.classList.add("is-open");
+    nuevoActivoBackdrop.classList.add("is-open");
+  }
+
+  function closeNuevoActivoModal() {
+    if (!nuevoActivoModal) return;
+    nuevoActivoModal.classList.remove("is-open");
+    nuevoActivoBackdrop.classList.remove("is-open");
+  }
+
+  if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", openNuevoActivoModal);
+  if (closeNuevoActivoBtn) closeNuevoActivoBtn.addEventListener("click", closeNuevoActivoModal);
+  if (cancelNuevoActivoBtn) cancelNuevoActivoBtn.addEventListener("click", closeNuevoActivoModal);
+  if (nuevoActivoBackdrop) nuevoActivoBackdrop.addEventListener("click", closeNuevoActivoModal);
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeDrawer();
+    if (event.key !== "Escape") return;
+    closeDrawer();
+    closeNuevoActivoModal();
   });
 
   function applyFilters() {
