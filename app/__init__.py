@@ -16,9 +16,11 @@ def create_app(config_class=Config):
     def remove_session(exception=None):
         SessionLocal.remove()
 
+    from app.controllers.assets_controller import assets_bp
     from app.controllers.base_controller import base_bp
 
     app.register_blueprint(base_bp)
+    app.register_blueprint(assets_bp)
 
     from app import i18n, template_helpers
 
