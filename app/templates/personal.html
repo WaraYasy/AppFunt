@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('personal.title') }} · {{ t('brand.name') }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/personal.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1 class="page-header__title">{{ t('personal.title') }}</h1>
+    <p class="page-header__subtitle">{{ t('personal.subtitle') }}</p>
+  </div>
+  <div class="page-header__actions">
+    <button type="button" class="btn btn-pill">
+      <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
+      <span>{{ t('personal.export') }}</span>
+    </button>
+    <button type="button" class="btn btn-primary" data-action="new-asset">
+      <span class="material-symbols-outlined">person_add</span>
+      <span>{{ t('personal.register') }}</span>
+    </button>
+  </div>
+</section>
+
+<section class="kpi-grid" aria-label="{{ t('personal.title') }}">
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('personal.kpi_total_label') }}</span>
+      <span class="material-symbols-outlined kpi-card__icon">group</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_empleados }}</span>
+      <p class="kpi-card__caption">{{ t('personal.kpi_total_caption') }}</p>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('personal.kpi_with_assets_label') }}</span>
+      <span class="badge badge-info">{{ porcentaje_con_activos }}%</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ con_activos }}</span>
+      <p class="kpi-card__caption">{{ t('personal.kpi_with_assets_caption') }}</p>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('personal.kpi_pending_label') }}</span>
+      <span class="material-symbols-outlined kpi-card__icon">person_add</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ sin_activos }}</span>
+      <p class="kpi-card__caption">{{ t('personal.kpi_pending_caption') }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="list-filter-bar">
+  <div class="filter-pills" id="filterPills">
+    {% for filtro in filtros_personal %}
+    <button
+      type="button"
+      class="filter-pill {{ 'is-active' if filtro.valor == 'all' else '' }}"
+      data-filter="{{ filtro.valor }}"
+    >
+      <span>{{ t(filtro.label_key) }}</span>
+      <span class="filter-pill__count">{{ filtro.total }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <div class="search-field list-search">
+    <span class="material-symbols-outlined search-field__icon">search</span>
+    <input
+      id="personalSearch"
+      type="text"
+      class="search-field__input"
+      placeholder="{{ t('personal.search_placeholder') }}"
+    />
+  </div>
+</section>
+
+<section class="card data-table-card">
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ t('personal.table_collaborator') }}</th>
+          <th>{{ t('personal.table_department') }}</th>
+          <th>{{ t('personal.table_location') }}</th>
+          <th>{{ t('personal.table_assets') }}</th>
+          <th>{{ t('personal.table_status') }}</th>
+          <th class="is-right">{{ t('personal.table_detail') }}</th>
+        </tr>
+      </thead>
+      <tbody id="personalTableBody">
+        {% for persona in personal %}
+        <tr
+          class="person-row"
+          data-persona-id="{{ persona.id }}"
+          data-tiene-activos="{{ 'true' if persona.assets else 'false' }}"
+          data-modalidad="{{ persona.modalidad or '' }}"
+        >
+          <td>
+            <div class="person-cell">
+              <div class="person-cell__avatar">{{ person_initials(persona) }}</div>
+              <div>
+                <span class="person-cell__name">{{ persona.nombre }} {{ persona.apellido }}</span>
+                {% if persona.email %}
+                <span class="person-cell__meta">{{ persona.email }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="text-strong">{{ persona.departamento or '—' }}</span>
+          </td>
+          <td>
+            <div class="location-cell">
+              <span
+                class="location-cell__dot {{ 'location-cell__dot--remote' if persona.modalidad == 'Remoto' else ('location-cell__dot--onsite' if persona.modalidad == 'Presencial' else '') }}"
+              ></span>
+              <span>{{ persona.ubicacion or '—' }}</span>
+            </div>
+          </td>
+          <td>
+            {% if persona.assets %}
+            <span class="asset-count-badge">
+              <span class="material-symbols-outlined">devices</span>
+              <span>
+                {{ persona.assets|length }}
+                {{ t('personal.assets_singular') if persona.assets|length == 1 else t('personal.assets_plural') }}
+              </span>
+            </span>
+            {% else %}
+            <span class="asset-count-badge asset-count-badge--empty">{{ t('personal.no_assets_badge') }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="status-pill status-pill--{{ 'assigned' if persona.assets else 'neutral' }}">
+              <span class="status-pill__dot"></span>
+              {% if persona.assets %}{{ t('personal.status_complete') }}{% else %}{{ t('personal.status_pending') }}{% endif %}
+            </span>
+          </td>
+          <td class="is-right">
+            <button type="button" class="table-link-btn" data-open-person="{{ persona.id }}">
+              <span>{{ t('personal.view_detail') }}</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="data-table-empty">{{ t('personal.no_people_yet') }}</td>
+        </tr>
+        {% endfor %}
+        <tr id="noResultsRow" style="display: none;">
+          <td colspan="6" class="data-table-empty">{{ t('personal.empty_state') }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="data-table-footer">
+    <span>
+      {{ t('personal.showing_prefix') }}
+      <b id="visibleCount">{{ personal|length }}</b>
+      {{ t('personal.of_label') }}
+      <b>{{ total_empleados }}</b>
+      {{ t('personal.people_word') }}
+    </span>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="personDrawer" aria-hidden="true">
+  <div>
+    <div class="drawer__header">
+      <div class="drawer__identity">
+        <div class="drawer__icon drawer__icon--avatar" id="drawerAvatar"></div>
+        <div style="min-width: 0;">
+          <div class="drawer__badges">
+            <span class="status-pill" id="drawerStatus">
+              <span class="status-pill__dot"></span>
+              <span id="drawerStatusLabel"></span>
+            </span>
+            <span class="drawer__tag" id="drawerTag"></span>
+          </div>
+          <h2 class="drawer__title" id="drawerName"></h2>
+          <div class="drawer__subtitle">
+            <span class="drawer__subtitle-value" id="drawerEmail"></span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="drawer__close"
+        id="drawerClose"
+        title="{{ t('personal.drawer_close') }} (Esc)"
+        aria-label="{{ t('personal.drawer_close') }}"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="drawer__body">
+      <div>
+        <div class="drawer__section-header">
+          <h3 class="drawer__section-title">
+            <span class="material-symbols-outlined">badge</span>
+            {{ t('personal.drawer_contact_title') }}
+          </h3>
+        </div>
+        <div class="card spec-list">
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('personal.drawer_role') }}</span>
+            <span class="spec-row__value" id="drawerRole"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('personal.drawer_department') }}</span>
+            <span class="spec-row__value" id="drawerDepartment"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('personal.drawer_location') }}</span>
+            <span class="spec-row__value" id="drawerLocation"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('personal.drawer_since') }}</span>
+            <span class="spec-row__value" id="drawerSince"></span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer__section-header">
+          <h3 class="drawer__section-title">
+            <span class="material-symbols-outlined">inventory_2</span>
+            {{ t('personal.drawer_assets_title') }}
+          </h3>
+          <span class="text-strong" style="font-size: var(--text-xs);" id="drawerAssetCounter"></span>
+        </div>
+        <div id="drawerAssetList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer__footer">
+    <button type="button" class="btn btn-primary">
+      <span class="material-symbols-outlined">tune</span>
+      <span>{{ t('personal.drawer_manage') }}</span>
+    </button>
+    <button type="button" class="btn btn-pill">
+      <span class="material-symbols-outlined">edit</span>
+      <span>{{ t('personal.drawer_edit') }}</span>
+    </button>
+  </div>
+</aside>
+
+<script type="application/json" id="personalData">{{ personal_json | tojson }}</script>
+<script type="application/json" id="personalI18n">
+  {{
+    {
+      "statusComplete": t('personal.status_complete'),
+      "statusPending": t('personal.status_pending'),
+      "noData": t('personal.drawer_no_data'),
+      "noAssets": t('personal.drawer_no_assets'),
+      "assetSingular": t('personal.assets_singular'),
+      "assetPlural": t('personal.assets_plural'),
+    } | tojson
+  }}
+</script>
+<script src="{{ url_for('static', filename='js/personal.js') }}" defer></script>
+{% endblock %}

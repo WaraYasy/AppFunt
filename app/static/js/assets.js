@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerCustodianCard.replaceChildren();
 
     if (!usuario) {
-      drawerCustodianCard.appendChild(el("p", "custodian-card__empty", i18n.drawerNoCustodian));
+      drawerCustodianCard.appendChild(el("p", "empty-note", i18n.drawerNoCustodian));
       return;
     }
 
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerStatus.className = `status-pill status-pill--${modifier}`;
     drawerStatusLabel.textContent = asset.asignado ? i18n.statusInUse : asset.estado;
 
-    renderCustodian(asset.usuario);
+    renderCustodian(asset.custodio);
 
     drawer.classList.add("is-open");
     drawer.setAttribute("aria-hidden", "false");

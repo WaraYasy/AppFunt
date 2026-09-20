@@ -25,7 +25,11 @@
         <span class="material-symbols-outlined">devices</span>
         <span>{{ t('nav.assets') }}</span>
       </a>
-      <a href="#" class="nav-link">
+      <a
+        href="{{ url_for('personal.index') }}"
+        class="nav-link {{ 'is-active' if request.endpoint == 'personal.index' else '' }}"
+        {{ 'aria-current="page"' | safe if request.endpoint == 'personal.index' else '' }}
+      >
         <span class="material-symbols-outlined">badge</span>
         <span>{{ t('nav.people') }}</span>
       </a>

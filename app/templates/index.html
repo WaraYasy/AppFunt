@@ -90,8 +90,8 @@
             <span class="badge">{{ asset.categoria }}</span>
           </div>
           <div class="movement-item__meta">
-            {% if asset.usuario %}
-            <span>{{ t('home.recent_assigned_to') }} <strong>{{ asset.usuario.nombre }} {{ asset.usuario.apellido }}</strong></span>
+            {% if asset.custodio %}
+            <span>{{ t('home.recent_assigned_to') }} <strong>{{ asset.custodio.nombre }} {{ asset.custodio.apellido }}</strong></span>
             {% else %}
             <span>{{ asset.estado }}</span>
             {% endif %}

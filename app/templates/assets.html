@@ -64,7 +64,7 @@
   </div>
 </section>
 
-<section class="assets-filter-bar">
+<section class="list-filter-bar">
   <div class="filter-pills" id="filterPills">
     <button type="button" class="filter-pill is-active" data-cat="all">
       <span>{{ t('assets.filter_all') }}</span>
@@ -78,7 +78,7 @@
     {% endfor %}
   </div>
 
-  <div class="search-field assets-search">
+  <div class="search-field list-search">
     <span class="material-symbols-outlined search-field__icon">search</span>
     <input
       id="assetsSearch"
@@ -89,9 +89,9 @@
   </div>
 </section>
 
-<section class="card assets-table-card">
-  <div class="assets-table-wrap">
-    <table class="assets-table">
+<section class="card data-table-card">
+  <div class="data-table-wrap">
+    <table class="data-table">
       <thead>
         <tr>
           <th>{{ t('assets.table_device') }}</th>
@@ -119,24 +119,24 @@
             <span class="badge">{{ asset.categoria }}</span>
           </td>
           <td>
-            {% if asset.usuario %}
-            <div class="custodian">
-              <div class="custodian__avatar">{{ user_initials(asset.usuario) }}</div>
+            {% if asset.custodio %}
+            <div class="person-cell">
+              <div class="person-cell__avatar">{{ person_initials(asset.custodio) }}</div>
               <div>
-                <span class="custodian__name">{{ asset.usuario.nombre }} {{ asset.usuario.apellido }}</span>
-                {% if asset.usuario.departamento %}
-                <span class="custodian__dept">{{ asset.usuario.departamento }}</span>
+                <span class="person-cell__name">{{ asset.custodio.nombre }} {{ asset.custodio.apellido }}</span>
+                {% if asset.custodio.departamento %}
+                <span class="person-cell__meta">{{ asset.custodio.departamento }}</span>
                 {% endif %}
               </div>
             </div>
             {% else %}
-            <span class="custodian--empty">{{ t('assets.no_custodian') }}</span>
+            <span class="person-cell--empty">{{ t('assets.no_custodian') }}</span>
             {% endif %}
           </td>
           <td>
             <span class="status-pill status-pill--{{ asset_status_modifier(asset) }}">
               <span class="status-pill__dot"></span>
-              {% if asset.usuario %}{{ t('assets.status_in_use') }}{% else %}{{ asset.estado }}{% endif %}
+              {% if asset.custodio %}{{ t('assets.status_in_use') }}{% else %}{{ asset.estado }}{% endif %}
             </span>
           </td>
           <td class="is-right">
@@ -148,16 +148,16 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="5" class="assets-table-empty">{{ t('assets.no_assets_yet') }}</td>
+          <td colspan="5" class="data-table-empty">{{ t('assets.no_assets_yet') }}</td>
         </tr>
         {% endfor %}
         <tr id="noResultsRow" style="display: none;">
-          <td colspan="5" class="assets-table-empty">{{ t('assets.empty_state') }}</td>
+          <td colspan="5" class="data-table-empty">{{ t('assets.empty_state') }}</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div class="assets-table-footer">
+  <div class="data-table-footer">
     <span>
       {{ t('assets.showing_prefix') }}
       <b id="visibleCount">{{ assets|length }}</b>
@@ -187,9 +187,9 @@
             <span class="drawer__tag" id="drawerTag"></span>
           </div>
           <h2 class="drawer__title" id="drawerTitle"></h2>
-          <div class="drawer__serial">
+          <div class="drawer__subtitle">
             <span>S/N:</span>
-            <span class="drawer__serial-value" id="drawerSerial"></span>
+            <span class="drawer__subtitle-value" id="drawerSerial"></span>
           </div>
         </div>
       </div>
