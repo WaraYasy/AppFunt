@@ -1,5 +1,6 @@
 """Controlador para la vista de Personal (directorio de colaboradores)."""
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
+from flask_login import login_required
 
 from app.database import SessionLocal
 from app.forms import EditarColaboradorForm, NuevoColaboradorForm
@@ -12,6 +13,12 @@ from app.template_helpers import asset_icon, person_initials
 from app.validacion import ValidationError
 
 personal_bp = Blueprint("personal", __name__)
+
+
+@personal_bp.before_request
+@login_required
+def _requerir_login():
+    pass
 
 
 def _locale() -> str:

@@ -15,8 +15,14 @@ alta, y no tiene sentido que cambien después — por eso solo existen en
 el form de alta, nunca en el de edición.
 """
 from flask_wtf import FlaskForm
-from wtforms import RadioField, SelectField, StringField
+from wtforms import BooleanField, PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import DataRequired, Email, Length, Optional
+
+
+class LoginForm(FlaskForm):
+    username = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
+    password = PasswordField(validators=[DataRequired(message="forms.error_required")])
+    remember = BooleanField()
 
 
 class NuevoActivoForm(FlaskForm):

@@ -20,6 +20,7 @@ def create_app(config_class=Config):
         SessionLocal.remove()
 
     from app.controllers.assets_controller import assets_bp
+    from app.controllers.auth_controller import auth_bp
     from app.controllers.base_controller import base_bp
     from app.controllers.personal_controller import personal_bp
     from app.controllers.settings_controller import settings_bp
@@ -28,6 +29,7 @@ def create_app(config_class=Config):
     app.register_blueprint(assets_bp)
     app.register_blueprint(personal_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(auth_bp)
 
     from app import auth, i18n, template_helpers, theme
 

@@ -1,5 +1,6 @@
 """Controlador para la vista de Activos (inventario de hardware)."""
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
+from flask_login import login_required
 
 from app.database import SessionLocal
 from app.forms import EditarActivoForm, NuevoActivoForm
@@ -22,6 +23,12 @@ CATEGORIAS_FILTRO = [
 ]
 
 SIN_ASIGNAR = ""  # valor del <option>/campo id_personal que representa "sin custodio"
+
+
+@assets_bp.before_request
+@login_required
+def _requerir_login():
+    pass
 
 
 def _locale() -> str:

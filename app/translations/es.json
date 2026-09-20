@@ -24,9 +24,25 @@
     "light_mode": "Modo claro",
     "dark_mode": "Modo oscuro"
   },
-  "sidebar": {
-    "guest_name": "Invitado",
-    "guest_role": "Sin sesión iniciada"
+  "auth": {
+    "logout": "Cerrar sesión",
+    "hero_eyebrow": "Gestión de activos IT",
+    "hero_headline": "Control y custodia de tu inventario tecnológico.",
+    "hero_subtitle": "Alta, asignación y seguimiento de equipos y colaboradores en un solo lugar.",
+    "cta_login": "Iniciar sesión",
+    "scroll_hint": "O presioná Iniciar sesión para continuar",
+    "back_to_welcome": "Volver a inicio",
+    "card_title": "Iniciar sesión",
+    "card_subtitle": "Acceso para personal de IT",
+    "field_username": "Usuario",
+    "field_username_placeholder": "tu.usuario",
+    "field_password": "Contraseña",
+    "field_password_placeholder": "••••••••",
+    "toggle_password": "Mostrar u ocultar la contraseña",
+    "remember_label": "Recordar este dispositivo por 30 días",
+    "submit": "Ingresar",
+    "error_invalid_credentials": "Usuario o contraseña incorrectos.",
+    "flash_logged_out": "Sesión cerrada correctamente."
   },
   "topbar": {
     "search_placeholder": "Buscar por nombre, serie o responsable...",

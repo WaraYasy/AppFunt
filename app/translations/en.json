@@ -24,9 +24,25 @@
     "light_mode": "Light mode",
     "dark_mode": "Dark mode"
   },
-  "sidebar": {
-    "guest_name": "Guest",
-    "guest_role": "Not signed in"
+  "auth": {
+    "logout": "Log out",
+    "hero_eyebrow": "IT asset management",
+    "hero_headline": "Control and custody of your tech inventory.",
+    "hero_subtitle": "Register, assign and track equipment and collaborators in one place.",
+    "cta_login": "Sign in",
+    "scroll_hint": "Or press Sign in to continue",
+    "back_to_welcome": "Back to home",
+    "card_title": "Sign in",
+    "card_subtitle": "Access for IT staff",
+    "field_username": "Username",
+    "field_username_placeholder": "your.username",
+    "field_password": "Password",
+    "field_password_placeholder": "••••••••",
+    "toggle_password": "Show or hide password",
+    "remember_label": "Remember this device for 30 days",
+    "submit": "Sign in",
+    "error_invalid_credentials": "Incorrect username or password.",
+    "flash_logged_out": "You've been signed out."
   },
   "topbar": {
     "search_placeholder": "Search by name, serial or owner...",

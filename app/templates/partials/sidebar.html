@@ -69,10 +69,20 @@
       <div class="sidebar__avatar">
         <span class="material-symbols-outlined">person</span>
       </div>
-      <div>
-        <div class="sidebar__account-name">{{ t('sidebar.guest_name') }}</div>
-        <div class="sidebar__account-role">{{ t('sidebar.guest_role') }}</div>
+      <div class="sidebar__account-info">
+        <div class="sidebar__account-name">
+          {{ current_user.personal.nombre ~ " " ~ current_user.personal.apellido if current_user.personal else current_user.username }}
+        </div>
+        <div class="sidebar__account-role">
+          {{ current_user.personal.rol if (current_user.personal and current_user.personal.rol) else current_user.username }}
+        </div>
       </div>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit" class="btn-icon" title="{{ t('auth.logout') }}" aria-label="{{ t('auth.logout') }}">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </form>
     </div>
   </div>
 </aside>

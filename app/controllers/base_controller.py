@@ -1,10 +1,17 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 from app.database import SessionLocal
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.personal_repository import PersonalRepository
 
 base_bp = Blueprint("base", __name__)
+
+
+@base_bp.before_request
+@login_required
+def _requerir_login():
+    pass
 
 
 @base_bp.route("/")
