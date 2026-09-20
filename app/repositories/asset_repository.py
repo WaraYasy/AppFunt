@@ -10,7 +10,13 @@ class AssetRepository:
         self.db = db
 
     def get_all(self) -> list[Asset]:
-        return self.db.query(Asset).all()
+        """Devuelve todos los assets, con su usuario cargado, del más reciente al más antiguo."""
+        return (
+            self.db.query(Asset)
+            .options(joinedload(Asset.usuario))
+            .order_by(Asset.created.desc())
+            .all()
+        )
 
     def get_all_by_user(self, id_user: str) -> list[Asset]:
         return self.db.query(Asset).filter(Asset.id_user == id_user).all()
