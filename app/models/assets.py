@@ -2,9 +2,10 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database import Base, generar_uuid
+from app.validacion import validar_longitud, validar_no_vacio, validar_opciones
 
 
 class AssetCategoria:
@@ -42,6 +43,23 @@ class Asset(Base):
     ubicacion: Mapped[str | None] = mapped_column(String(120))
 
     custodio: Mapped["Personal"] = relationship(back_populates="assets")
+
+    @validates("nombre")
+    def _validar_nombre(self, key, value):
+        value = validar_longitud(self, key, value)
+        return validar_no_vacio(key, value)
+
+    @validates("categoria")
+    def _validar_categoria(self, key, value):
+        value = validar_longitud(self, key, value)
+        return validar_opciones(key, value, AssetCategoria.OPCIONES)
+
+    @validates(
+        "codigo", "numero_serie", "estado", "cpu", "ram",
+        "almacenamiento", "sistema_operativo", "garantia", "ubicacion",
+    )
+    def _validar_opcionales(self, key, value):
+        return validar_longitud(self, key, value)
 
     def __repr__(self) -> str:
         return f"<Asset {self.nombre} ({self.categoria})>"

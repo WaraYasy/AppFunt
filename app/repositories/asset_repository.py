@@ -19,11 +19,32 @@ class AssetRepository:
         self.db.refresh(asset)
         return asset
 
-    def existe_numero_serie(self, numero_serie: str) -> bool:
+    def update(self, asset: Asset, **campos) -> Asset:
+        """Actualiza únicamente los campos editables de un Asset ya existente."""
+        for campo, valor in campos.items():
+            setattr(asset, campo, valor)
+        self.db.commit()
+        self.db.refresh(asset)
+        return asset
+
+    def delete(self, asset: Asset) -> None:
+        """Elimina un Asset. No tiene dependientes (nada referencia a un Asset)."""
+        self.db.delete(asset)
+        self.db.commit()
+
+    def get_by_id(self, id_asset: str) -> Asset | None:
         return (
-            self.db.query(Asset.id).filter(Asset.numero_serie == numero_serie).first()
-            is not None
+            self.db.query(Asset)
+            .options(joinedload(Asset.custodio))
+            .filter(Asset.id == id_asset)
+            .first()
         )
+
+    def existe_numero_serie(self, numero_serie: str, excluir_id: str | None = None) -> bool:
+        query = self.db.query(Asset.id).filter(Asset.numero_serie == numero_serie)
+        if excluir_id:
+            query = query.filter(Asset.id != excluir_id)
+        return query.first() is not None
 
     def get_all(self) -> list[Asset]:
         """Devuelve todos los assets, con su custodio cargado, del más reciente al más antiguo."""

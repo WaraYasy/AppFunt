@@ -1,13 +1,14 @@
 """Controlador para la vista de Activos (inventario de hardware)."""
-from flask import Blueprint, redirect, render_template, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 
 from app.database import SessionLocal
-from app.forms import NuevoActivoForm
+from app.forms import EditarActivoForm, NuevoActivoForm
 from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset, AssetCategoria
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.personal_repository import PersonalRepository
 from app.template_helpers import asset_icon, person_initials
+from app.validacion import ValidationError
 
 assets_bp = Blueprint("assets", __name__)
 
@@ -21,6 +22,34 @@ CATEGORIAS_FILTRO = [
 ]
 
 SIN_ASIGNAR = ""  # valor del <option>/campo id_personal que representa "sin custodio"
+
+
+def _locale() -> str:
+    return session.get("locale", DEFAULT_LOCALE)
+
+
+def _limpio(valor: str | None) -> str | None:
+    """Recorta espacios y convierte vacío -> None. `valor` puede llegar None
+    (campo Optional ausente del formdata), por eso no se puede asumir str."""
+    return (valor or "").strip() or None
+
+
+def _guardar(db, form, accion) -> bool:
+    """Ejecuta `accion` (una llamada al repositorio). Si el modelo rechaza
+    algún dato (@validates, ver app/validacion.py), engancha el error al
+    campo correspondiente del form en vez de dejar que reviente en un 500 —
+    es la red de seguridad para lo que WTForms no llegó a filtrar antes."""
+    try:
+        accion()
+    except ValidationError as exc:
+        db.rollback()  # descarta cualquier setattr() ya aplicado antes del que falló
+        campo_form = getattr(form, exc.campo, None)
+        if campo_form is not None:
+            campo_form.errors.append(exc.mensaje)
+        else:
+            flash(f"{exc.campo}: {exc.mensaje}", "error")
+        return False
+    return True
 
 
 def _serializar_asset(asset: Asset) -> dict:
@@ -40,6 +69,8 @@ def _serializar_asset(asset: Asset) -> dict:
         "almacenamiento": asset.almacenamiento,
         "sistemaOperativo": asset.sistema_operativo,
         "garantia": asset.garantia,
+        "ubicacion": asset.ubicacion,
+        "idPersonal": asset.id_personal or "",
         "custodio": (
             {
                 "nombre": f"{custodio.nombre} {custodio.apellido}",
@@ -54,26 +85,41 @@ def _serializar_asset(asset: Asset) -> dict:
     }
 
 
-def _preparar_formulario(form: NuevoActivoForm, personal_repo: PersonalRepository) -> None:
-    """Completa los choices de un NuevoActivoForm con datos de la base."""
-    locale = session.get("locale", DEFAULT_LOCALE)
-    form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
-    form.id_personal.choices = [
-        (SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))
-    ] + [
+def _choices_id_personal(personal_repo: PersonalRepository) -> list[tuple[str, str]]:
+    """Choices de custodio, comunes al form de alta y al de edición."""
+    locale = _locale()
+    return [(SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))] + [
         (persona.id, f"{persona.nombre} {persona.apellido}" + (f" ({persona.rol})" if persona.rol else ""))
         for persona in personal_repo.get_all()
     ]
 
 
-def _contexto_index(form: NuevoActivoForm | None = None) -> dict:
+def _preparar_form_nuevo(form: NuevoActivoForm, personal_repo: PersonalRepository) -> None:
+    form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
+    form.id_personal.choices = _choices_id_personal(personal_repo)
+
+
+def _preparar_form_editar(form: EditarActivoForm, personal_repo: PersonalRepository) -> None:
+    form.id_personal.choices = _choices_id_personal(personal_repo)
+
+
+def _contexto_index(
+    form_nuevo: NuevoActivoForm | None = None,
+    form_editar: EditarActivoForm | None = None,
+    abrir_modal_nuevo: bool = False,
+    id_editar_abierto: str | None = None,
+) -> dict:
     db = SessionLocal()
     asset_repo = AssetRepository(db)
     personal_repo = PersonalRepository(db)
 
-    if form is None:
-        form = NuevoActivoForm()
-    _preparar_formulario(form, personal_repo)
+    if form_nuevo is None:
+        form_nuevo = NuevoActivoForm()
+    _preparar_form_nuevo(form_nuevo, personal_repo)
+
+    if form_editar is None:
+        form_editar = EditarActivoForm(prefix="editar-")
+    _preparar_form_editar(form_editar, personal_repo)
 
     assets = asset_repo.get_all()
     total_assets = len(assets)
@@ -101,8 +147,10 @@ def _contexto_index(form: NuevoActivoForm | None = None) -> dict:
         "total_asignados": total_asignados,
         "porcentaje_asignados": porcentaje_asignados,
         "filtros_categoria": filtros_categoria,
-        "form": form,
-        "abrir_modal_nuevo": False,
+        "form": form_nuevo,
+        "form_editar": form_editar,
+        "abrir_modal_nuevo": abrir_modal_nuevo,
+        "id_editar_abierto": id_editar_abierto,
     }
 
 
@@ -118,21 +166,77 @@ def crear():
     personal_repo = PersonalRepository(db)
 
     form = NuevoActivoForm()
-    _preparar_formulario(form, personal_repo)
+    _preparar_form_nuevo(form, personal_repo)
 
     if form.validate_on_submit():
         if form.numero_serie.data and asset_repo.existe_numero_serie(form.numero_serie.data):
             form.numero_serie.errors.append("assets.error_duplicate_serial")
-        else:
-            asset_repo.create(
+        elif _guardar(
+            db,
+            form,
+            lambda: asset_repo.create(
                 nombre=form.nombre.data.strip(),
                 categoria=form.categoria.data,
-                numero_serie=form.numero_serie.data.strip() or None,
-                ubicacion=form.ubicacion.data.strip() or None,
+                numero_serie=_limpio(form.numero_serie.data),
+                ubicacion=_limpio(form.ubicacion.data),
                 id_personal=form.id_personal.data or None,
-            )
+            ),
+        ):
+            flash(translate("assets.flash_created", _locale()), "success")
             return redirect(url_for("assets.index"))
 
-    contexto = _contexto_index(form=form)
+    contexto = _contexto_index(form_nuevo=form)
     contexto["abrir_modal_nuevo"] = True
     return render_template("assets.html", **contexto), 400
+
+
+@assets_bp.route("/activos/<id_asset>/editar", methods=["POST"])
+def editar(id_asset):
+    db = SessionLocal()
+    asset_repo = AssetRepository(db)
+    personal_repo = PersonalRepository(db)
+
+    asset = asset_repo.get_by_id(id_asset)
+    if asset is None:
+        abort(404)
+
+    form = EditarActivoForm(prefix="editar-")
+    _preparar_form_editar(form, personal_repo)
+
+    if form.validate_on_submit():
+        # nombre/categoría/número de serie no se pueden editar (ver forms.py),
+        # así que no hace falta re-chequear duplicado de serie acá: no cambia.
+        if _guardar(
+            db,
+            form,
+            lambda: asset_repo.update(
+                asset,
+                ubicacion=_limpio(form.ubicacion.data),
+                id_personal=form.id_personal.data or None,
+                cpu=_limpio(form.cpu.data),
+                ram=_limpio(form.ram.data),
+                almacenamiento=_limpio(form.almacenamiento.data),
+                sistema_operativo=_limpio(form.sistema_operativo.data),
+            ),
+        ):
+            flash(translate("assets.flash_updated", _locale()), "success")
+            return redirect(url_for("assets.index"))
+
+    contexto = _contexto_index(form_editar=form)
+    contexto["id_editar_abierto"] = asset.id
+    return render_template("assets.html", **contexto), 400
+
+
+@assets_bp.route("/activos/<id_asset>/eliminar", methods=["POST"])
+def eliminar(id_asset):
+    db = SessionLocal()
+    asset_repo = AssetRepository(db)
+
+    asset = asset_repo.get_by_id(id_asset)
+    if asset is None:
+        abort(404)
+
+    nombre = asset.nombre
+    asset_repo.delete(asset)
+    flash(translate("assets.flash_deleted", _locale()).format(nombre=nombre), "success")
+    return redirect(url_for("assets.index"))

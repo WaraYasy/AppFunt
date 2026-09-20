@@ -1,15 +1,45 @@
 """Controlador para la vista de Personal (directorio de colaboradores)."""
-from flask import Blueprint, redirect, render_template, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 
 from app.database import SessionLocal
-from app.forms import NuevoColaboradorForm
+from app.forms import EditarColaboradorForm, NuevoColaboradorForm
 from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset
-from app.models.personal import Personal, PersonalModalidad
+from app.models.personal import Personal, PersonalDepartamento, PersonalModalidad, PersonalUbicacion
+from app.repositories.asset_repository import AssetRepository
 from app.repositories.personal_repository import PersonalRepository
 from app.template_helpers import asset_icon, person_initials
+from app.validacion import ValidationError
 
 personal_bp = Blueprint("personal", __name__)
+
+
+def _locale() -> str:
+    return session.get("locale", DEFAULT_LOCALE)
+
+
+def _limpio(valor: str | None) -> str | None:
+    """Recorta espacios y convierte vacío -> None. `valor` puede llegar None
+    (campo Optional ausente del formdata), por eso no se puede asumir str."""
+    return (valor or "").strip() or None
+
+
+def _guardar(db, form, accion) -> bool:
+    """Ejecuta `accion` (una llamada al repositorio). Si el modelo rechaza
+    algún dato (@validates, ver app/validacion.py), engancha el error al
+    campo correspondiente del form en vez de dejar que reviente en un 500 —
+    es la red de seguridad para lo que WTForms no llegó a filtrar antes."""
+    try:
+        accion()
+    except ValidationError as exc:
+        db.rollback()  # descarta cualquier setattr() ya aplicado antes del que falló
+        campo_form = getattr(form, exc.campo, None)
+        if campo_form is not None:
+            campo_form.errors.append(exc.mensaje)
+        else:
+            flash(f"{exc.campo}: {exc.mensaje}", "error")
+        return False
+    return True
 
 
 def _serializar_asset_asignado(asset: Asset) -> dict:
@@ -36,25 +66,43 @@ def _serializar_persona(persona: Personal) -> dict:
         "modalidad": persona.modalidad,
         "incorporacion": persona.created.strftime("%d/%m/%Y"),
         "tieneActivos": bool(persona.assets),
+        "cantidadActivos": len(persona.assets),
         "activos": [_serializar_asset_asignado(asset) for asset in persona.assets],
     }
 
 
-def _preparar_formulario(form: NuevoColaboradorForm) -> None:
-    """Completa los choices de un NuevoColaboradorForm."""
-    locale = session.get("locale", DEFAULT_LOCALE)
-    form.modalidad.choices = [("", translate("personal.modal_field_modality_empty", locale))] + [
+def _preparar_formulario(form) -> None:
+    """Completa los choices (departamento, ubicación, modalidad) de un
+    formulario de Personal. Alta y edición comparten estos tres campos."""
+    locale = _locale()
+    vacio = translate("personal.field_not_specified", locale)
+    form.departamento.choices = [("", vacio)] + [
+        (depto, depto) for depto in PersonalDepartamento.OPCIONES
+    ]
+    form.ubicacion.choices = [("", vacio)] + [
+        (sede, sede) for sede in PersonalUbicacion.OPCIONES
+    ]
+    form.modalidad.choices = [("", vacio)] + [
         (modalidad, modalidad) for modalidad in PersonalModalidad.OPCIONES
     ]
 
 
-def _contexto_index(form: NuevoColaboradorForm | None = None) -> dict:
+def _contexto_index(
+    form_nuevo: NuevoColaboradorForm | None = None,
+    form_editar: EditarColaboradorForm | None = None,
+    abrir_modal_nuevo: bool = False,
+    id_editar_abierto: str | None = None,
+) -> dict:
     db = SessionLocal()
     personal_repo = PersonalRepository(db)
 
-    if form is None:
-        form = NuevoColaboradorForm()
-    _preparar_formulario(form)
+    if form_nuevo is None:
+        form_nuevo = NuevoColaboradorForm()
+    _preparar_formulario(form_nuevo)
+
+    if form_editar is None:
+        form_editar = EditarColaboradorForm(prefix="editar-")
+    _preparar_formulario(form_editar)
 
     personal = personal_repo.get_all()
     total_empleados = len(personal)
@@ -90,8 +138,10 @@ def _contexto_index(form: NuevoColaboradorForm | None = None) -> dict:
         "sin_activos": sin_activos,
         "porcentaje_con_activos": porcentaje_con_activos,
         "filtros_personal": filtros_personal,
-        "form": form,
-        "abrir_modal_nuevo": False,
+        "form": form_nuevo,
+        "form_editar": form_editar,
+        "abrir_modal_nuevo": abrir_modal_nuevo,
+        "id_editar_abierto": id_editar_abierto,
     }
 
 
@@ -111,18 +161,99 @@ def crear():
     if form.validate_on_submit():
         if form.email.data and personal_repo.existe_email(form.email.data):
             form.email.errors.append("personal.error_duplicate_email")
-        else:
-            personal_repo.create(
+        elif _guardar(
+            db,
+            form,
+            lambda: personal_repo.create(
                 nombre=form.nombre.data.strip(),
                 apellido=form.apellido.data.strip(),
-                email=form.email.data.strip() or None,
-                rol=form.rol.data.strip() or None,
-                departamento=form.departamento.data.strip() or None,
-                ubicacion=form.ubicacion.data.strip() or None,
+                email=_limpio(form.email.data),
+                rol=_limpio(form.rol.data),
+                departamento=form.departamento.data or None,
+                ubicacion=form.ubicacion.data or None,
                 modalidad=form.modalidad.data or None,
-            )
+            ),
+        ):
+            flash(translate("personal.flash_created", _locale()), "success")
             return redirect(url_for("personal.index"))
 
-    contexto = _contexto_index(form=form)
+    contexto = _contexto_index(form_nuevo=form)
     contexto["abrir_modal_nuevo"] = True
     return render_template("personal.html", **contexto), 400
+
+
+@personal_bp.route("/personal/<id_persona>/editar", methods=["POST"])
+def editar(id_persona):
+    db = SessionLocal()
+    personal_repo = PersonalRepository(db)
+
+    persona = personal_repo.get_by_id(id_persona)
+    if persona is None:
+        abort(404)
+
+    form = EditarColaboradorForm(prefix="editar-")
+    _preparar_formulario(form)
+
+    if form.validate_on_submit():
+        # nombre/apellido/cargo no se pueden editar (ver forms.py).
+        if form.email.data and personal_repo.existe_email(form.email.data, excluir_id=persona.id):
+            form.email.errors.append("personal.error_duplicate_email")
+        elif _guardar(
+            db,
+            form,
+            lambda: personal_repo.update(
+                persona,
+                email=_limpio(form.email.data),
+                departamento=form.departamento.data or None,
+                ubicacion=form.ubicacion.data or None,
+                modalidad=form.modalidad.data or None,
+            ),
+        ):
+            flash(translate("personal.flash_updated", _locale()), "success")
+            return redirect(url_for("personal.index"))
+
+    contexto = _contexto_index(form_editar=form)
+    contexto["id_editar_abierto"] = persona.id
+    return render_template("personal.html", **contexto), 400
+
+
+@personal_bp.route("/personal/<id_persona>/eliminar", methods=["POST"])
+def eliminar(id_persona):
+    db = SessionLocal()
+    personal_repo = PersonalRepository(db)
+
+    persona = personal_repo.get_by_id(id_persona)
+    if persona is None:
+        abort(404)
+
+    nombre = f"{persona.nombre} {persona.apellido}"
+    huerfanos = personal_repo.delete(persona)
+
+    if huerfanos:
+        mensaje = translate("personal.flash_deleted_with_orphans", _locale()).format(
+            nombre=nombre, n=huerfanos
+        )
+        flash(mensaje, "warning")
+    else:
+        mensaje = translate("personal.flash_deleted", _locale()).format(nombre=nombre)
+        flash(mensaje, "success")
+
+    return redirect(url_for("personal.index"))
+
+
+@personal_bp.route("/personal/<id_persona>/activos/<id_asset>/quitar", methods=["POST"])
+def quitar_activo(id_persona, id_asset):
+    """Desasigna un activo puntual de esta persona (no lo elimina: el activo
+    queda sin custodio, disponible). Se llama desde el drawer de Personal,
+    con confirmación previa del lado del cliente."""
+    db = SessionLocal()
+    asset_repo = AssetRepository(db)
+
+    asset = asset_repo.get_by_id(id_asset)
+    if asset is None or asset.id_personal != id_persona:
+        abort(404)
+
+    nombre_asset = asset.nombre
+    asset_repo.update(asset, id_personal=None)
+    flash(translate("personal.flash_asset_unassigned", _locale()).format(nombre=nombre_asset), "success")
+    return redirect(url_for("personal.index"))

@@ -3,6 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import generar_codigo
+from app.models.assets import Asset
 from app.models.personal import Personal
 
 
@@ -19,8 +20,37 @@ class PersonalRepository:
         self.db.refresh(persona)
         return persona
 
-    def existe_email(self, email: str) -> bool:
-        return self.db.query(Personal.id).filter(Personal.email == email).first() is not None
+    def update(self, persona: Personal, **campos) -> Personal:
+        """Actualiza únicamente los campos editables de una Personal ya existente."""
+        for campo, valor in campos.items():
+            setattr(persona, campo, valor)
+        self.db.commit()
+        self.db.refresh(persona)
+        return persona
+
+    def delete(self, persona: Personal) -> int:
+        """Elimina una Personal. Sus assets no se borran: quedan sin custodio
+        (id_personal=NULL). Devuelve cuántos activos quedaron así."""
+        activos_asignados = self.db.query(Asset).filter(Asset.id_personal == persona.id).all()
+        for asset in activos_asignados:
+            asset.id_personal = None
+        self.db.delete(persona)
+        self.db.commit()
+        return len(activos_asignados)
+
+    def get_by_id(self, id_personal: str) -> Personal | None:
+        return (
+            self.db.query(Personal)
+            .options(selectinload(Personal.assets))
+            .filter(Personal.id == id_personal)
+            .first()
+        )
+
+    def existe_email(self, email: str, excluir_id: str | None = None) -> bool:
+        query = self.db.query(Personal.id).filter(Personal.email == email)
+        if excluir_id:
+            query = query.filter(Personal.id != excluir_id)
+        return query.first() is not None
 
     def get_all(self) -> list[Personal]:
         """Devuelve todo el personal, con sus assets cargados, ordenado por nombre."""
