@@ -29,7 +29,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: 0 var(--space-6);
-  border-bottom: 1px solid rgba(37, 40, 54, 0.7);
+  border-bottom: 1px solid rgba(var(--color-border-subtle-rgb), 0.7);
 }
 
 .sidebar__logo {
@@ -98,7 +98,7 @@
 
 .nav-link.is-active {
   background-color: var(--color-surface-hover);
-  color: #ffffff;
+  color: var(--color-on-surface);
   border-left-color: var(--color-primary);
 }
 
@@ -108,16 +108,81 @@
 
 .sidebar__footer {
   padding: var(--space-3);
-  border-top: 1px solid rgba(37, 40, 54, 0.7);
+  border-top: 1px solid rgba(var(--color-border-subtle-rgb), 0.7);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
+/* Menú desplegable de Configuración (idioma / tema), anclado en el footer */
+.settings-menu {
+  position: relative;
+}
+
+.settings-menu__panel {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
+  width: 100%;
+  min-width: 12rem;
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  padding: var(--space-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  z-index: 60;
+}
+
+.settings-menu__panel[hidden] {
+  display: none;
+}
+
+.settings-menu__panel form {
+  display: contents;
+}
+
+.settings-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-on-surface-muted);
+  font-size: var(--text-sm);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.settings-menu__item:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.settings-menu__item .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--color-on-surface-subtle);
+}
+
+.settings-menu__item-label {
+  flex: 1;
+  text-align: left;
+}
+
+.settings-menu__item-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-on-surface-subtle);
+}
+
 .sidebar__account {
   margin-top: var(--space-2);
   padding: var(--space-2);
-  border-top: 1px solid rgba(37, 40, 54, 0.4);
+  border-top: 1px solid rgba(var(--color-border-subtle-rgb), 0.4);
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -159,7 +224,7 @@
   left: var(--sidebar-width);
   right: 0;
   height: var(--topbar-height);
-  background-color: rgba(15, 17, 23, 0.9);
+  background-color: rgba(var(--color-surface-rgb), 0.9);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border-subtle);
   z-index: 40;

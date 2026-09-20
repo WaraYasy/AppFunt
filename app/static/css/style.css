@@ -115,7 +115,7 @@ button {
 
 .btn-pill:hover {
   border-color: var(--color-border-focus);
-  color: #ffffff;
+  color: var(--color-on-surface);
 }
 
 /* Badges */
@@ -229,7 +229,7 @@ button {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: var(--font-weight-bold);
-  color: #ffffff;
+  color: var(--color-on-surface);
   letter-spacing: -0.01em;
 }
 
@@ -251,7 +251,7 @@ button {
   font-family: var(--font-display);
   font-size: var(--text-md);
   font-weight: var(--font-weight-semibold);
-  color: #ffffff;
+  color: var(--color-on-surface);
 }
 
 .section-link {
@@ -299,8 +299,8 @@ button {
 
 .status-pill--available {
   color: var(--color-accent-blue);
-  background-color: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.3);
+  background-color: rgba(var(--color-accent-blue-rgb), 0.12);
+  border-color: rgba(var(--color-accent-blue-rgb), 0.3);
 }
 
 .status-pill--neutral {
@@ -348,7 +348,7 @@ button {
 .page-header__title {
   font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
-  color: #ffffff;
+  color: var(--color-on-surface);
 }
 
 .page-header__subtitle {
@@ -446,7 +446,7 @@ button {
 
 .data-table thead tr {
   border-bottom: 1px solid var(--color-border-subtle);
-  background-color: rgba(15, 17, 23, 0.5);
+  background-color: rgba(var(--color-surface-rgb), 0.5);
 }
 
 .data-table th {
@@ -464,7 +464,7 @@ button {
 }
 
 .data-table tbody tr {
-  border-bottom: 1px solid rgba(37, 40, 54, 0.6);
+  border-bottom: 1px solid rgba(var(--color-border-subtle-rgb), 0.6);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
@@ -518,7 +518,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-5);
-  border-top: 1px solid rgba(37, 40, 54, 0.6);
+  border-top: 1px solid rgba(var(--color-border-subtle-rgb), 0.6);
   font-size: var(--text-sm);
   color: var(--color-on-surface-subtle);
 }
@@ -566,7 +566,7 @@ button {
 .drawer-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 17, 23, 0.7);
+  background-color: rgba(var(--color-surface-rgb), 0.7);
   backdrop-filter: blur(2px);
   z-index: 60;
   opacity: 0;
@@ -762,7 +762,7 @@ button {
   justify-content: space-between;
   gap: var(--space-3);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid rgba(37, 40, 54, 0.6);
+  border-bottom: 1px solid rgba(var(--color-border-subtle-rgb), 0.6);
   font-size: var(--text-sm);
 }
 
@@ -793,7 +793,7 @@ button {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 17, 23, 0.75);
+  background-color: rgba(var(--color-surface-rgb), 0.75);
   backdrop-filter: blur(2px);
   z-index: 80;
   opacity: 0;
@@ -1018,7 +1018,7 @@ button {
 
 .form-chip-option input:checked + label {
   border-color: var(--color-primary);
-  background-color: rgba(206, 57, 205, 0.14);
+  background-color: rgba(var(--color-primary-rgb), 0.14);
   color: var(--color-on-surface);
 }
 

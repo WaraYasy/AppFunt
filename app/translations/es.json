@@ -15,8 +15,12 @@
     "dashboard": "Dashboard",
     "assets": "Activos / Recursos",
     "people": "Personas",
-    "locations": "Sedes",
     "settings": "Configuración"
+  },
+  "settings": {
+    "language": "Idioma",
+    "light_mode": "Modo claro",
+    "dark_mode": "Modo oscuro"
   },
   "sidebar": {
     "guest_name": "Invitado",
@@ -24,12 +28,10 @@
   },
   "topbar": {
     "search_placeholder": "Buscar por nombre, serie o responsable...",
-    "search_shortcut": "⌘K",
-    "notifications": "Notificaciones",
-    "new_asset": "Nuevo Activo"
+    "search_shortcut": "⌘K"
   },
   "home": {
-    "greeting": "Hola 👋",
+    "greeting": "Hola",
     "subtitle": "Gestión y disponibilidad de recursos IT",
     "kpi_section_label": "Resumen de Inventario",
     "kpi_total_label": "Total Activos",

@@ -8,20 +8,25 @@
 
   /* Color / Superficies */
   --color-surface: #0f1117;
+  --color-surface-rgb: 15, 17, 23;
   --color-surface-subtle: #161821;
   --color-surface-card: #181a24;
+  --color-surface-card-rgb: 24, 26, 36;
   --color-surface-hover: #202330;
 
   /* Color / Bordes */
   --color-border-subtle: #252836;
+  --color-border-subtle-rgb: 37, 40, 54;
   --color-border-focus: #393e54;
 
   /* Color / Marca y acentos */
   --color-primary: #ce39cd;
+  --color-primary-rgb: 206, 57, 205;
   --color-primary-hover: #b82db7;
   --color-accent-purple: #a855f7;
   --color-accent-green: #10b981;
   --color-accent-blue: #38bdf8;
+  --color-accent-blue-rgb: 56, 189, 248;
 
   /* Color / Texto */
   --color-on-surface: #f8fafc;
@@ -79,4 +84,42 @@
   /* Movimiento */
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
+}
+
+/*
+ * Modo claro. Redefine solo los tokens de color — tipografía, espaciado,
+ * radios y layout son iguales en los dos temas. Se activa con
+ * <html data-theme="light">, ver base.html y app/theme.py.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-surface: #f8fafc;
+  --color-surface-rgb: 248, 250, 252;
+  --color-surface-subtle: #ffffff;
+  --color-surface-card: #f1f5f9;
+  --color-surface-card-rgb: 241, 245, 249;
+  --color-surface-hover: #e2e8f0;
+
+  --color-border-subtle: #e2e8f0;
+  --color-border-subtle-rgb: 226, 232, 240;
+  --color-border-focus: #cbd5e1;
+
+  --color-primary: #a821a7;
+  --color-primary-rgb: 168, 33, 167;
+  --color-primary-hover: #8f1c8f;
+  --color-accent-purple: #9333ea;
+  --color-accent-green: #059669;
+  --color-accent-blue: #0284c7;
+  --color-accent-blue-rgb: 2, 132, 199;
+
+  --color-on-surface: #0f172a;
+  --color-on-surface-muted: #475569;
+  --color-on-surface-subtle: #64748b;
+
+  --color-success-surface: rgba(5, 150, 105, 0.12);
+  --color-success-border: rgba(5, 150, 105, 0.35);
+  --color-error: #dc2626;
+  --color-error-surface: rgba(220, 38, 38, 0.1);
+  --color-error-border: rgba(220, 38, 38, 0.3);
 }

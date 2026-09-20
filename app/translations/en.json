@@ -15,8 +15,12 @@
     "dashboard": "Dashboard",
     "assets": "Assets / Resources",
     "people": "People",
-    "locations": "Locations",
     "settings": "Settings"
+  },
+  "settings": {
+    "language": "Language",
+    "light_mode": "Light mode",
+    "dark_mode": "Dark mode"
   },
   "sidebar": {
     "guest_name": "Guest",
@@ -24,12 +28,10 @@
   },
   "topbar": {
     "search_placeholder": "Search by name, serial or owner...",
-    "search_shortcut": "⌘K",
-    "notifications": "Notifications",
-    "new_asset": "New Asset"
+    "search_shortcut": "⌘K"
   },
   "home": {
-    "greeting": "Hi there 👋",
+    "greeting": "Hi there",
     "subtitle": "IT resource management and availability",
     "kpi_section_label": "Inventory Summary",
     "kpi_total_label": "Total Assets",

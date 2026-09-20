@@ -33,18 +33,37 @@
         <span class="material-symbols-outlined">badge</span>
         <span>{{ t('nav.people') }}</span>
       </a>
-      <a href="#" class="nav-link">
-        <span class="material-symbols-outlined">domain</span>
-        <span>{{ t('nav.locations') }}</span>
-      </a>
     </nav>
   </div>
 
   <div class="sidebar__footer">
-    <a href="#" class="nav-link">
-      <span class="material-symbols-outlined">settings</span>
-      <span>{{ t('nav.settings') }}</span>
-    </a>
+    <div class="settings-menu" id="settingsMenu">
+      <button type="button" class="nav-link" id="settingsMenuTrigger" aria-haspopup="true" aria-expanded="false">
+        <span class="material-symbols-outlined">settings</span>
+        <span>{{ t('nav.settings') }}</span>
+      </button>
+      <div class="settings-menu__panel" id="settingsMenuPanel" hidden>
+        <form method="post" action="{{ url_for('settings.alternar_idioma') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="settings-menu__item">
+            <span class="material-symbols-outlined">translate</span>
+            <span class="settings-menu__item-label">{{ t('settings.language') }}</span>
+            <span class="settings-menu__item-value">{{ current_locale | upper }}</span>
+          </button>
+        </form>
+        <form method="post" action="{{ url_for('settings.alternar_tema') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="settings-menu__item">
+            <span class="material-symbols-outlined">
+              {{ 'light_mode' if current_theme == 'dark' else 'dark_mode' }}
+            </span>
+            <span class="settings-menu__item-label">
+              {{ t('settings.light_mode') if current_theme == 'dark' else t('settings.dark_mode') }}
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
 
     <div class="sidebar__account">
       <div class="sidebar__avatar">
