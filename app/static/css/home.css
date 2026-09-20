@@ -127,18 +127,6 @@
   color: var(--color-on-surface-subtle);
 }
 
-.movement-item__chevron {
-  color: var(--color-on-surface-subtle);
-  font-size: 18px;
-  margin-left: var(--space-4);
-  flex-shrink: 0;
-  transition: color var(--transition-fast);
-}
-
-.movement-item:hover .movement-item__chevron {
-  color: var(--color-on-surface);
-}
-
 .movement-empty {
   padding: var(--space-6) var(--space-5);
   color: var(--color-on-surface-muted);

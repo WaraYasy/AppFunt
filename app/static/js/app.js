@@ -14,24 +14,6 @@ document.addEventListener("keydown", (event) => {
   searchInput.focus();
 });
 
-// Botones con data-action enfocan la búsqueda global y, opcionalmente,
-// le asignan un placeholder o valor de ayuda (ver topbar.html, home.css).
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("globalSearch");
-  if (!searchInput) return;
-
-  document.querySelectorAll("[data-action]").forEach((trigger) => {
-    trigger.addEventListener("click", () => {
-      const { placeholder, value } = trigger.dataset;
-
-      if (placeholder) searchInput.placeholder = placeholder;
-      if (value) searchInput.value = value;
-
-      searchInput.focus();
-    });
-  });
-});
-
 // Menú de Configuración (sidebar): idioma / tema. Cada opción es un form
 // que hace un POST real, así que el menú solo necesita abrir y cerrar.
 document.addEventListener("DOMContentLoaded", () => {

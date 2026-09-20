@@ -46,34 +46,24 @@
 </section>
 
 <section class="quick-actions" aria-label="{{ t('home.quick_actions_label') }}">
-  <button
-    type="button"
-    class="btn btn-pill"
-    data-action="new-asset"
-    data-placeholder="{{ t('home.quick_new_asset_placeholder') }}"
-  >
+  <a href="{{ url_for('assets.index', nuevo=1) }}" class="btn btn-pill">
     <span class="material-symbols-outlined quick-actions__icon-primary">add_circle</span>
     <span>{{ t('home.quick_new_asset') }}</span>
-  </button>
-  <button
-    type="button"
-    class="btn btn-pill"
-    data-action="focus-search"
-    data-placeholder="{{ t('home.quick_find_placeholder') }}"
-  >
+  </a>
+  <a href="{{ url_for('assets.index', buscar=1) }}" class="btn btn-pill">
     <span class="material-symbols-outlined">search</span>
     <span>{{ t('home.quick_find_asset') }}</span>
-  </button>
-  <button type="button" class="btn btn-pill" data-action="filter-available" data-value="estado:disponible">
+  </a>
+  <a href="{{ url_for('assets.index', estado='disponible') }}" class="btn btn-pill">
     <span class="material-symbols-outlined quick-actions__icon-success">check_circle</span>
     <span>{{ t('home.quick_view_available') }} ({{ total_disponibles }})</span>
-  </button>
+  </a>
 </section>
 
 <section aria-label="{{ t('home.recent_title') }}">
   <div class="section-header">
     <h2 class="section-title">{{ t('home.recent_title') }}</h2>
-    <a href="#" class="section-link">
+    <a href="{{ url_for('assets.index') }}" class="section-link">
       <span>{{ t('home.recent_view_all') }} ({{ total_assets }})</span>
       <span class="material-symbols-outlined">arrow_forward</span>
     </a>
@@ -102,7 +92,6 @@
           </div>
         </div>
       </div>
-      <span class="material-symbols-outlined movement-item__chevron">chevron_right</span>
     </div>
     {% else %}
     <p class="movement-empty">{{ t('home.recent_empty') }}</p>

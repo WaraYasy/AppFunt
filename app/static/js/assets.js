@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const drawerCustodianCard = document.getElementById("drawerCustodianCard");
 
   let currentCategory = "all";
+  let currentEstado = "";
   let searchQuery = "";
   let currentAssetId = null;
 
@@ -245,8 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     rows.forEach((row) => {
       const matchesCategory = currentCategory === "all" || row.dataset.categoria === currentCategory;
+      const matchesEstado = !currentEstado || row.dataset.estado === currentEstado;
       const matchesSearch = !searchQuery || row.textContent.toLowerCase().includes(searchQuery);
-      const show = matchesCategory && matchesSearch;
+      const show = matchesCategory && matchesEstado && matchesSearch;
 
       row.style.display = show ? "" : "none";
       if (show) visible += 1;
@@ -271,4 +273,18 @@ document.addEventListener("DOMContentLoaded", () => {
       applyFilters();
     });
   }
+
+  // Accesos directos del dashboard (ver home.quick_actions en index.html):
+  // ?nuevo=1 abre el modal de alta, ?estado=disponible/asignado filtra de
+  // entrada, ?buscar=1 pone el foco en la búsqueda para tipear la serie.
+  const paramsIniciales = new URLSearchParams(window.location.search);
+  if (paramsIniciales.get("nuevo") === "1") nuevoActivoModal.open();
+
+  const estadoInicial = paramsIniciales.get("estado");
+  if (estadoInicial) {
+    currentEstado = estadoInicial;
+    applyFilters();
+  }
+
+  if (paramsIniciales.get("buscar") === "1" && searchInput) searchInput.focus();
 });

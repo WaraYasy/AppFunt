@@ -95,7 +95,12 @@
       </thead>
       <tbody id="assetsTableBody">
         {% for asset in assets %}
-        <tr class="asset-row" data-asset-id="{{ asset.id }}" data-categoria="{{ asset.categoria }}">
+        <tr
+          class="asset-row"
+          data-asset-id="{{ asset.id }}"
+          data-categoria="{{ asset.categoria }}"
+          data-estado="{{ 'disponible' if not asset.custodio else 'asignado' }}"
+        >
           <td>
             <div class="asset-cell">
               <div class="asset-cell__icon">
