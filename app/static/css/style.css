@@ -185,6 +185,130 @@ button {
   border-color: var(--color-primary);
 }
 
+/* Grid de KPIs (usado en Home y Activos) */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.kpi-card {
+  padding: var(--space-6);
+  height: 9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpi-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-card__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-subtle);
+}
+
+.kpi-card__icon {
+  font-size: 20px;
+  color: var(--color-on-surface-subtle);
+}
+
+.kpi-card__value {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.kpi-card__caption {
+  font-size: var(--text-sm);
+  color: var(--color-on-surface-muted);
+  margin-top: var(--space-1);
+}
+
+/* Cabecera de sección (usado en Home y Activos) */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-1);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+}
+
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-on-surface-muted);
+  transition: color var(--transition-fast);
+}
+
+.section-link:hover {
+  color: var(--color-primary);
+}
+
+.section-link .material-symbols-outlined {
+  font-size: 14px;
+}
+
+/* Pastilla de estado (usada en listados de activos) */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1875rem var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid transparent;
+}
+
+.status-pill__dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+}
+
+.status-pill--assigned {
+  color: var(--color-accent-green);
+  background-color: var(--color-success-surface);
+  border-color: var(--color-success-border);
+}
+
+.status-pill--available {
+  color: var(--color-accent-blue);
+  background-color: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.status-pill--neutral {
+  color: var(--color-on-surface-subtle);
+  background-color: var(--color-surface-card);
+  border-color: var(--color-border-subtle);
+}
+
 .search-field__kbd {
   position: absolute;
   right: var(--space-3);

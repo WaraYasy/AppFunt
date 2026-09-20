@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('assets.title') }} · {{ t('brand.name') }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/assets.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1 class="page-header__title">{{ t('assets.title') }}</h1>
+    <p class="page-header__subtitle">{{ t('assets.subtitle') }}</p>
+  </div>
+  <div class="page-header__actions">
+    <button type="button" class="btn btn-pill">
+      <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
+      <span>{{ t('assets.export') }}</span>
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-action="new-asset"
+      data-placeholder="{{ t('home.quick_new_asset_placeholder') }}"
+    >
+      <span class="material-symbols-outlined">add</span>
+      <span>{{ t('assets.register') }}</span>
+    </button>
+  </div>
+</section>
+
+<section class="kpi-grid" aria-label="{{ t('assets.title') }}">
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('assets.kpi_total_label') }}</span>
+      <span class="material-symbols-outlined kpi-card__icon">devices</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_assets }}</span>
+      <p class="kpi-card__caption">{{ t('assets.kpi_total_caption') }}</p>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('assets.kpi_assigned_label') }}</span>
+      <span class="badge badge-info">{{ porcentaje_asignados }}%</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_asignados }}</span>
+      <p class="kpi-card__caption">{{ t('assets.kpi_assigned_caption') }}</p>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-card__header">
+      <span class="kpi-card__label">{{ t('assets.kpi_available_label') }}</span>
+      <span class="badge badge-success">{{ t('assets.kpi_available_badge') }}</span>
+    </div>
+    <div>
+      <span class="kpi-card__value">{{ total_disponibles }}</span>
+      <p class="kpi-card__caption">{{ t('assets.kpi_available_caption') }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="assets-filter-bar">
+  <div class="filter-pills" id="filterPills">
+    <button type="button" class="filter-pill is-active" data-cat="all">
+      <span>{{ t('assets.filter_all') }}</span>
+      <span class="filter-pill__count">{{ total_assets }}</span>
+    </button>
+    {% for filtro in filtros_categoria %}
+    <button type="button" class="filter-pill" data-cat="{{ filtro.valor }}">
+      <span>{{ t(filtro.label_key) }}</span>
+      <span class="filter-pill__count">{{ filtro.total }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <div class="search-field assets-search">
+    <span class="material-symbols-outlined search-field__icon">search</span>
+    <input
+      id="assetsSearch"
+      type="text"
+      class="search-field__input"
+      placeholder="{{ t('assets.search_placeholder') }}"
+    />
+  </div>
+</section>
+
+<section class="card assets-table-card">
+  <div class="assets-table-wrap">
+    <table class="assets-table">
+      <thead>
+        <tr>
+          <th>{{ t('assets.table_device') }}</th>
+          <th>{{ t('assets.table_category') }}</th>
+          <th>{{ t('assets.table_custodian') }}</th>
+          <th>{{ t('assets.table_status') }}</th>
+          <th class="is-right">{{ t('assets.table_detail') }}</th>
+        </tr>
+      </thead>
+      <tbody id="assetsTableBody">
+        {% for asset in assets %}
+        <tr class="asset-row" data-asset-id="{{ asset.id }}" data-categoria="{{ asset.categoria }}">
+          <td>
+            <div class="asset-cell">
+              <div class="asset-cell__icon">
+                <span class="material-symbols-outlined">{{ asset_icon(asset) }}</span>
+              </div>
+              <div>
+                <span class="asset-cell__name">{{ asset.nombre }}</span>
+                <span class="asset-cell__code">{{ asset.numero_serie or asset.codigo or '—' }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge">{{ asset.categoria }}</span>
+          </td>
+          <td>
+            {% if asset.usuario %}
+            <div class="custodian">
+              <div class="custodian__avatar">{{ user_initials(asset.usuario) }}</div>
+              <div>
+                <span class="custodian__name">{{ asset.usuario.nombre }} {{ asset.usuario.apellido }}</span>
+                {% if asset.usuario.departamento %}
+                <span class="custodian__dept">{{ asset.usuario.departamento }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% else %}
+            <span class="custodian--empty">{{ t('assets.no_custodian') }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="status-pill status-pill--{{ asset_status_modifier(asset) }}">
+              <span class="status-pill__dot"></span>
+              {% if asset.usuario %}{{ t('assets.status_in_use') }}{% else %}{{ asset.estado }}{% endif %}
+            </span>
+          </td>
+          <td class="is-right">
+            <button type="button" class="table-link-btn" data-open-asset="{{ asset.id }}">
+              <span>{{ t('assets.view_detail') }}</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="assets-table-empty">{{ t('assets.no_assets_yet') }}</td>
+        </tr>
+        {% endfor %}
+        <tr id="noResultsRow" style="display: none;">
+          <td colspan="5" class="assets-table-empty">{{ t('assets.empty_state') }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="assets-table-footer">
+    <span>
+      {{ t('assets.showing_prefix') }}
+      <b id="visibleCount">{{ assets|length }}</b>
+      {{ t('assets.of_label') }}
+      <b>{{ total_assets }}</b>
+      {{ t('assets.assets_word') }}
+    </span>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="assetDrawer" aria-hidden="true">
+  <div>
+    <div class="drawer__header">
+      <div class="drawer__identity">
+        <div class="drawer__icon">
+          <span class="material-symbols-outlined" id="drawerIcon">laptop</span>
+        </div>
+        <div style="min-width: 0;">
+          <div class="drawer__badges">
+            <span class="status-pill" id="drawerStatus">
+              <span class="status-pill__dot"></span>
+              <span id="drawerStatusLabel"></span>
+            </span>
+            <span class="drawer__tag" id="drawerTag"></span>
+          </div>
+          <h2 class="drawer__title" id="drawerTitle"></h2>
+          <div class="drawer__serial">
+            <span>S/N:</span>
+            <span class="drawer__serial-value" id="drawerSerial"></span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="drawer__close"
+        id="drawerClose"
+        title="{{ t('assets.drawer_close') }} (Esc)"
+        aria-label="{{ t('assets.drawer_close') }}"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="drawer__body">
+      <div>
+        <div class="drawer__section-header">
+          <h3 class="drawer__section-title">
+            <span class="material-symbols-outlined">memory</span>
+            {{ t('assets.drawer_specs_title') }}
+          </h3>
+        </div>
+        <div class="card spec-list">
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('assets.drawer_cpu') }}</span>
+            <span class="spec-row__value" id="drawerCpu"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('assets.drawer_ram') }}</span>
+            <span class="spec-row__value" id="drawerRam"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('assets.drawer_storage') }}</span>
+            <span class="spec-row__value" id="drawerStorage"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('assets.drawer_os') }}</span>
+            <span class="spec-row__value" id="drawerOs"></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-row__label">{{ t('assets.drawer_warranty') }}</span>
+            <span class="spec-row__value" id="drawerWarranty"></span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer__section-header">
+          <h3 class="drawer__section-title">
+            <span class="material-symbols-outlined">person</span>
+            {{ t('assets.drawer_custodian_title') }}
+          </h3>
+        </div>
+        <div class="card custodian-card" id="drawerCustodianCard"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer__footer">
+    <button type="button" class="btn btn-primary">
+      <span class="material-symbols-outlined">swap_horiz</span>
+      <span>{{ t('assets.drawer_reassign') }}</span>
+    </button>
+    <button type="button" class="btn btn-pill">
+      <span class="material-symbols-outlined">edit</span>
+      <span>{{ t('assets.drawer_edit') }}</span>
+    </button>
+  </div>
+</aside>
+
+<script type="application/json" id="assetsData">{{ assets_json | tojson }}</script>
+<script type="application/json" id="assetsI18n">
+  {{
+    {
+      "statusInUse": t('assets.status_in_use'),
+      "drawerDepartment": t('assets.drawer_department'),
+      "drawerLocation": t('assets.drawer_location'),
+      "drawerNoCustodian": t('assets.drawer_no_custodian'),
+      "drawerNoData": t('assets.drawer_no_data'),
+    } | tojson
+  }}
+</script>
+<script src="{{ url_for('static', filename='js/assets.js') }}" defer></script>
+{% endblock %}

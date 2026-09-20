@@ -9,11 +9,19 @@
     </div>
 
     <nav class="sidebar__nav">
-      <a href="{{ url_for('base.index') }}" class="nav-link is-active" aria-current="page">
+      <a
+        href="{{ url_for('base.index') }}"
+        class="nav-link {{ 'is-active' if request.endpoint == 'base.index' else '' }}"
+        {{ 'aria-current="page"' | safe if request.endpoint == 'base.index' else '' }}
+      >
         <span class="material-symbols-outlined">dashboard</span>
         <span>{{ t('nav.dashboard') }}</span>
       </a>
-      <a href="#" class="nav-link">
+      <a
+        href="{{ url_for('assets.index') }}"
+        class="nav-link {{ 'is-active' if request.endpoint == 'assets.index' else '' }}"
+        {{ 'aria-current="page"' | safe if request.endpoint == 'assets.index' else '' }}
+      >
         <span class="material-symbols-outlined">devices</span>
         <span>{{ t('nav.assets') }}</span>
       </a>
