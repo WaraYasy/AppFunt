@@ -218,14 +218,25 @@ document.addEventListener("DOMContentLoaded", () => {
   ]);
   const eliminarColaboradorForm = document.getElementById("eliminarColaboradorForm");
   const eliminarColaboradorBody = document.getElementById("eliminarColaboradorBody");
+  const eliminarColaboradorSubmit = document.getElementById("eliminarColaboradorSubmit");
 
   function abrirEliminacion(personaId) {
     const persona = personaById[personaId];
     if (!persona || !eliminarColaboradorForm) return;
 
     eliminarColaboradorForm.action = `/personal/${persona.id}/eliminar`;
+
+    // Si tiene una cuenta de acceso vinculada, el servidor va a rechazar el
+    // borrado igual (ver personal_controller.eliminar) — acá se lo decimos
+    // antes de que intente, en vez de dejar que mande el form para nada.
+    if (eliminarColaboradorSubmit) eliminarColaboradorSubmit.hidden = persona.tieneCuenta;
+
     if (eliminarColaboradorBody) {
-      const plantilla = persona.tieneActivos ? i18n.deleteConfirmBodyWithAssets : i18n.deleteConfirmBody;
+      const plantilla = persona.tieneCuenta
+        ? i18n.deleteBlockedHasAccount
+        : persona.tieneActivos
+          ? i18n.deleteConfirmBodyWithAssets
+          : i18n.deleteConfirmBody;
       eliminarColaboradorBody.textContent = plantilla
         .replace("{nombre}", persona.nombre)
         .replace("{n}", String(persona.cantidadActivos));

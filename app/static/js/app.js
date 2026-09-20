@@ -14,6 +14,21 @@ document.addEventListener("keydown", (event) => {
   searchInput.focus();
 });
 
+// Buscador global del topbar: no filtra nada en el lugar (aparece en
+// Dashboard/Activos/Personal, no siempre hay algo que filtrar ahí mismo).
+// Al presionar Enter, manda a la búsqueda real de Activos con ese texto.
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("globalSearch");
+  if (!searchInput) return;
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    const valor = searchInput.value.trim();
+    if (!valor) return;
+    window.location.href = `/activos?q=${encodeURIComponent(valor)}`;
+  });
+});
+
 // Menú de Configuración (sidebar): idioma / tema. Cada opción es un form
 // que hace un POST real, así que el menú solo necesita abrir y cerrar.
 document.addEventListener("DOMContentLoaded", () => {

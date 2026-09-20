@@ -38,8 +38,7 @@ class NuevoActivoForm(FlaskForm):
 class EditarActivoForm(FlaskForm):
     """Solo lo que tiene sentido que cambie con el tiempo: dónde está, quién
     lo tiene, y su ficha técnica. Nombre/categoría/serie no se exponen acá
-    (ver docstring del módulo); garantía tampoco: no aporta lo suficiente
-    como para justificar el campo."""
+    (ver docstring del módulo)."""
 
     ubicacion = SelectField(validators=[Optional()])
     id_personal = SelectField(validators=[Optional()])

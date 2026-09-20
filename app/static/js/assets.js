@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("assetsSearch");
 
   // --- Helper genérico para abrir/cerrar un par modal+backdrop ---
-  function wireModal(modalId, backdropId, extraCloseIds) {
+  function wireModal(modalId, backdropId, extraCloseIds, onClose) {
     const modal = document.getElementById(modalId);
     const backdrop = document.getElementById(backdropId);
     if (!modal || !backdrop) return { open: () => {}, close: () => {} };
@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function close() {
       modal.classList.remove("is-open");
       backdrop.classList.remove("is-open");
+      if (onClose) onClose();
     }
 
     backdrop.addEventListener("click", close);
@@ -130,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
     return {
       render,
+      closePanel,
       setValue(id) {
         nativeSelect.value = id || "";
         render();
@@ -152,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const drawerRam = document.getElementById("drawerRam");
   const drawerStorage = document.getElementById("drawerStorage");
   const drawerOs = document.getElementById("drawerOs");
-  const drawerWarranty = document.getElementById("drawerWarranty");
   const drawerCustodianCard = document.getElementById("drawerCustodianCard");
 
   let currentCategory = "all";
@@ -216,7 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fillSpec(drawerRam, asset.ram);
     fillSpec(drawerStorage, asset.almacenamiento);
     fillSpec(drawerOs, asset.sistemaOperativo);
-    fillSpec(drawerWarranty, asset.garantia);
 
     const modifier = asset.asignado ? "assigned" : asset.estado === "Disponible" ? "available" : "neutral";
     drawerStatus.className = `status-pill status-pill--${modifier}`;
@@ -251,22 +251,26 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerBackdrop.addEventListener("click", closeDrawer);
 
   // --- Modal "Nuevo Activo" ---
-  const nuevoActivoModal = wireModal("nuevoActivoModal", "nuevoActivoBackdrop", [
-    "closeNuevoActivoBtn",
-    "cancelNuevoActivoBtn",
-  ]);
+  const nuevoAsignarPicker = wireAssignPicker("id_personal", personal);
+  const nuevoActivoModal = wireModal(
+    "nuevoActivoModal",
+    "nuevoActivoBackdrop",
+    ["closeNuevoActivoBtn", "cancelNuevoActivoBtn"],
+    nuevoAsignarPicker.closePanel
+  );
   const openNuevoActivoBtn = document.getElementById("openNuevoActivoBtn");
   if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", nuevoActivoModal.open);
-  wireAssignPicker("id_personal", personal);
 
   // --- Modal "Editar Activo" ---
-  const editarActivoModal = wireModal("editarActivoModal", "editarActivoBackdrop", [
-    "closeEditarActivoBtn",
-    "cancelEditarActivoBtn",
-  ]);
+  const editarAsignarPicker = wireAssignPicker("editar-id_personal", personal);
+  const editarActivoModal = wireModal(
+    "editarActivoModal",
+    "editarActivoBackdrop",
+    ["closeEditarActivoBtn", "cancelEditarActivoBtn"],
+    editarAsignarPicker.closePanel
+  );
   const editarActivoForm = document.getElementById("editarActivoForm");
   const editarActivoContexto = document.getElementById("editarActivoContexto");
-  const editarAsignarPicker = wireAssignPicker("editar-id_personal", personal);
 
   function setFieldValue(id, value) {
     const field = document.getElementById(id);
@@ -362,9 +366,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Accesos directos del dashboard (ver home.quick_actions en index.html):
-  // ?nuevo=1 abre el modal de alta, ?estado=disponible/asignado filtra de
-  // entrada, ?buscar=1 pone el foco en la búsqueda para tipear la serie.
+  // Accesos directos desde otras páginas (dashboard: home.quick_actions en
+  // index.html; topbar: #globalSearch en app.js): ?nuevo=1 abre el modal de
+  // alta, ?estado=disponible/asignado filtra de entrada, ?buscar=1 pone el
+  // foco en la búsqueda, ?q=<texto> la precarga y filtra de una.
   const paramsIniciales = new URLSearchParams(window.location.search);
   if (paramsIniciales.get("nuevo") === "1") nuevoActivoModal.open();
 
@@ -374,5 +379,12 @@ document.addEventListener("DOMContentLoaded", () => {
     applyFilters();
   }
 
-  if (paramsIniciales.get("buscar") === "1" && searchInput) searchInput.focus();
+  const busquedaInicial = paramsIniciales.get("q");
+  if (busquedaInicial && searchInput) {
+    searchInput.value = busquedaInicial;
+    searchQuery = busquedaInicial.trim().toLowerCase();
+    applyFilters();
+  } else if (paramsIniciales.get("buscar") === "1" && searchInput) {
+    searchInput.focus();
+  }
 });

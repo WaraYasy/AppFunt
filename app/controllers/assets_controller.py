@@ -76,7 +76,6 @@ def _serializar_asset(asset: Asset) -> dict:
         "ram": asset.ram,
         "almacenamiento": asset.almacenamiento,
         "sistemaOperativo": asset.sistema_operativo,
-        "garantia": asset.garantia,
         "ubicacion": asset.ubicacion,
         "idPersonal": asset.id_personal or "",
         "custodio": (

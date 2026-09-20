@@ -377,7 +377,7 @@
     </div>
     <div class="modal__footer">
       <button type="button" class="btn btn-pill" id="cancelEliminarColaboradorBtn">{{ t('forms.cancel') }}</button>
-      <button type="submit" class="btn btn-danger">
+      <button type="submit" class="btn btn-danger" id="eliminarColaboradorSubmit">
         <span class="material-symbols-outlined">delete</span>
         <span>{{ t('personal.delete_confirm_submit') }}</span>
       </button>
@@ -425,6 +425,7 @@
       "assetPlural": t('personal.assets_plural'),
       "deleteConfirmBody": t('personal.delete_confirm_body'),
       "deleteConfirmBodyWithAssets": t('personal.delete_confirm_body_with_assets'),
+      "deleteBlockedHasAccount": t('personal.delete_blocked_has_account'),
       "unassignConfirmBody": t('personal.unassign_confirm_body'),
       "removeAssetLabel": t('personal.remove_asset_label'),
     } | tojson

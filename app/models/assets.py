@@ -40,7 +40,6 @@ class Asset(Base):
     ram: Mapped[str | None] = mapped_column(String(60))
     almacenamiento: Mapped[str | None] = mapped_column(String(120))
     sistema_operativo: Mapped[str | None] = mapped_column(String(80))
-    garantia: Mapped[str | None] = mapped_column(String(120))
     ubicacion: Mapped[str | None] = mapped_column(String(120))
 
     custodio: Mapped["Personal"] = relationship(back_populates="assets")
@@ -62,7 +61,7 @@ class Asset(Base):
 
     @validates(
         "codigo", "numero_serie", "estado", "cpu", "ram",
-        "almacenamiento", "sistema_operativo", "garantia",
+        "almacenamiento", "sistema_operativo",
     )
     def _validar_opcionales(self, key, value):
         return validar_longitud(self, key, value)

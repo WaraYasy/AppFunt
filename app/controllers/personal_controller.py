@@ -9,6 +9,7 @@ from app.models.assets import Asset
 from app.models.personal import Personal, PersonalDepartamento, PersonalModalidad, PersonalUbicacion
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.personal_repository import PersonalRepository
+from app.repositories.usuario_repository import UsuarioRepository
 from app.template_helpers import asset_icon, person_initials
 from app.validacion import ValidationError
 
@@ -60,7 +61,7 @@ def _serializar_asset_asignado(asset: Asset) -> dict:
     }
 
 
-def _serializar_persona(persona: Personal) -> dict:
+def _serializar_persona(persona: Personal, ids_con_cuenta: set[str]) -> dict:
     return {
         "id": persona.id,
         "codigo": persona.codigo,
@@ -74,6 +75,7 @@ def _serializar_persona(persona: Personal) -> dict:
         "tieneActivos": bool(persona.assets),
         "cantidadActivos": len(persona.assets),
         "activos": [_serializar_asset_asignado(asset) for asset in persona.assets],
+        "tieneCuenta": persona.id in ids_con_cuenta,
     }
 
 
@@ -101,6 +103,7 @@ def _contexto_index(
 ) -> dict:
     db = SessionLocal()
     personal_repo = PersonalRepository(db)
+    usuario_repo = UsuarioRepository(db)
 
     if form_nuevo is None:
         form_nuevo = NuevoColaboradorForm()
@@ -136,9 +139,11 @@ def _contexto_index(
         },
     ]
 
+    ids_con_cuenta = usuario_repo.ids_personal_con_cuenta()
+
     return {
         "personal": personal,
-        "personal_json": [_serializar_persona(persona) for persona in personal],
+        "personal_json": [_serializar_persona(persona, ids_con_cuenta) for persona in personal],
         "total_empleados": total_empleados,
         "con_activos": con_activos,
         "sin_activos": sin_activos,
@@ -226,12 +231,22 @@ def editar(id_persona):
 def eliminar(id_persona):
     db = SessionLocal()
     personal_repo = PersonalRepository(db)
+    usuario_repo = UsuarioRepository(db)
 
     persona = personal_repo.get_by_id(id_persona)
     if persona is None:
         abort(404)
 
     nombre = f"{persona.nombre} {persona.apellido}"
+
+    # Si tiene una cuenta de acceso vinculada, no se borra: en MySQL la FK
+    # (Usuario.id_personal, sin ondelete) rechazaría el DELETE igual, pero acá
+    # lo cortamos antes con un mensaje claro en vez de dejar que explote un
+    # IntegrityError sin capturar. La cuenta se borra aparte, a mano.
+    if usuario_repo.get_by_personal(persona.id) is not None:
+        flash(translate("personal.error_has_account", _locale()).format(nombre=nombre), "error")
+        return redirect(url_for("personal.index"))
+
     huerfanos = personal_repo.delete(persona)
 
     if huerfanos:

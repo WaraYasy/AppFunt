@@ -6,11 +6,18 @@ escala solo si el día de mañana SUPPORTED_LOCALES/SUPPORTED_THEMES crecen
 más allá de 2 valores.
 """
 from flask import Blueprint, abort, redirect, request, session, url_for
+from flask_login import login_required
 
 from app.i18n import SUPPORTED_LOCALES
 from app.theme import SUPPORTED_THEMES
 
 settings_bp = Blueprint("settings", __name__)
+
+
+@settings_bp.before_request
+@login_required
+def _requerir_login():
+    pass
 
 
 def _volver_a_la_pagina_anterior():
