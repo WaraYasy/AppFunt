@@ -21,8 +21,11 @@
   },
   "settings": {
     "language": "Language",
+    "theme": "Theme",
     "light_mode": "Light mode",
-    "dark_mode": "Dark mode"
+    "dark_mode": "Dark mode",
+    "locale_es": "Español",
+    "locale_en": "English"
   },
   "auth": {
     "logout": "Log out",

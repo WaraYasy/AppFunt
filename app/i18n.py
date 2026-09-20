@@ -46,4 +46,5 @@ def init_app(app):
         return {
             "t": lambda key: translate(key, locale),
             "current_locale": locale,
+            "supported_locales": SUPPORTED_LOCALES,
         }

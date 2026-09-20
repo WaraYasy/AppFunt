@@ -43,25 +43,60 @@
         <span>{{ t('nav.settings') }}</span>
       </button>
       <div class="settings-menu__panel" id="settingsMenuPanel" hidden>
-        <form method="post" action="{{ url_for('settings.alternar_idioma') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <button type="submit" class="settings-menu__item">
-            <span class="material-symbols-outlined">translate</span>
-            <span class="settings-menu__item-label">{{ t('settings.language') }}</span>
-            <span class="settings-menu__item-value">{{ current_locale | upper }}</span>
-          </button>
-        </form>
-        <form method="post" action="{{ url_for('settings.alternar_tema') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <button type="submit" class="settings-menu__item">
-            <span class="material-symbols-outlined">
-              {{ 'light_mode' if current_theme == 'dark' else 'dark_mode' }}
-            </span>
-            <span class="settings-menu__item-label">
-              {{ t('settings.light_mode') if current_theme == 'dark' else t('settings.dark_mode') }}
-            </span>
-          </button>
-        </form>
+        <div class="settings-menu__section">
+          <span class="settings-menu__section-label">{{ t('settings.language') }}</span>
+          <div class="settings-menu__options">
+            {% for locale in supported_locales %}
+            <form method="post" action="{{ url_for('settings.elegir_idioma', locale=locale) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button
+                type="submit"
+                class="settings-menu__option {{ 'is-active' if locale == current_locale else '' }}"
+                {{ 'disabled' if locale == current_locale else '' }}
+              >
+                <span class="settings-menu__option-label">{{ t('settings.locale_' ~ locale) }}</span>
+                {% if locale == current_locale %}
+                <span class="material-symbols-outlined settings-menu__option-check">check</span>
+                {% endif %}
+              </button>
+            </form>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="settings-menu__section">
+          <span class="settings-menu__section-label">{{ t('settings.theme') }}</span>
+          <div class="settings-menu__options">
+            <form method="post" action="{{ url_for('settings.elegir_tema', theme='light') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button
+                type="submit"
+                class="settings-menu__option {{ 'is-active' if current_theme == 'light' else '' }}"
+                {{ 'disabled' if current_theme == 'light' else '' }}
+              >
+                <span class="material-symbols-outlined">light_mode</span>
+                <span class="settings-menu__option-label">{{ t('settings.light_mode') }}</span>
+                {% if current_theme == 'light' %}
+                <span class="material-symbols-outlined settings-menu__option-check">check</span>
+                {% endif %}
+              </button>
+            </form>
+            <form method="post" action="{{ url_for('settings.elegir_tema', theme='dark') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button
+                type="submit"
+                class="settings-menu__option {{ 'is-active' if current_theme == 'dark' else '' }}"
+                {{ 'disabled' if current_theme == 'dark' else '' }}
+              >
+                <span class="material-symbols-outlined">dark_mode</span>
+                <span class="settings-menu__option-label">{{ t('settings.dark_mode') }}</span>
+                {% if current_theme == 'dark' %}
+                <span class="material-symbols-outlined settings-menu__option-check">check</span>
+                {% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
