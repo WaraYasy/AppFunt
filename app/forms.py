@@ -31,7 +31,7 @@ class NuevoActivoForm(FlaskForm):
     )
     categoria = RadioField(validators=[DataRequired(message="forms.error_required")])
     numero_serie = StringField(validators=[Optional(), Length(max=60)])
-    ubicacion = StringField(validators=[Optional(), Length(max=120)])
+    ubicacion = SelectField(validators=[Optional()])
     id_personal = SelectField(validators=[Optional()])
 
 
@@ -41,7 +41,7 @@ class EditarActivoForm(FlaskForm):
     (ver docstring del módulo); garantía tampoco: no aporta lo suficiente
     como para justificar el campo."""
 
-    ubicacion = StringField(validators=[Optional(), Length(max=120)])
+    ubicacion = SelectField(validators=[Optional()])
     id_personal = SelectField(validators=[Optional()])
     cpu = StringField(validators=[Optional(), Length(max=120)])
     ram = StringField(validators=[Optional(), Length(max=60)])

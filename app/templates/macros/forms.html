@@ -30,6 +30,50 @@
 </div>
 {% endmacro %}
 
+{% macro campo_asignacion(field, label) %}
+{# Selector de custodio con buscador: `field` (id_personal) es un SelectField
+   común de WTForms -queda oculto pero es el que valida y se envía con el
+   form-, y encima se dibuja un widget de búsqueda en JS (ver assets.js:
+   wireAssignPicker) que lo maneja. Sin JS, sigue existiendo el <select>
+   nativo, así que el form no queda inutilizable. #}
+<div class="field {{ 'field--invalid' if field.errors else '' }}">
+  <div class="field__label-row">
+    <label class="field__label" for="{{ field.id }}">{{ label }}</label>
+  </div>
+  {{ field(class_="assign-picker__native") }}
+  <div class="assign-picker" data-picker-for="{{ field.id }}">
+    <div class="assign-picker__current">
+      <span class="assign-picker__current-label" data-current-label></span>
+      <div class="assign-picker__current-actions">
+        <button type="button" class="btn btn-pill assign-picker__assign-btn" data-assign-btn>
+          <span class="material-symbols-outlined" style="font-size: 16px;">person_search</span>
+          <span data-assign-btn-label></span>
+        </button>
+        <button
+          type="button"
+          class="assign-picker__clear-btn"
+          data-clear-btn
+          hidden
+          aria-label="{{ t('assets.assign_clear_button') }}"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="assign-picker__panel" data-panel hidden>
+      <div class="search-field assign-picker__search">
+        <span class="material-symbols-outlined search-field__icon">search</span>
+        <input type="text" class="search-field__input" data-search placeholder="{{ t('assets.assign_search_placeholder') }}" />
+      </div>
+      <div class="assign-picker__results" data-results></div>
+    </div>
+  </div>
+  {% if field.errors %}
+  <span class="field__error">{{ t(field.errors[0]) }}</span>
+  {% endif %}
+</div>
+{% endmacro %}
+
 {% macro campo_chips(field, label, requerido=False) %}
 <div class="field {{ 'field--invalid' if field.errors else '' }}">
   <div class="field__label-row">

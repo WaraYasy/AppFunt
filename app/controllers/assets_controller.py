@@ -6,6 +6,7 @@ from app.database import SessionLocal
 from app.forms import EditarActivoForm, NuevoActivoForm
 from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset, AssetCategoria
+from app.models.personal import PersonalUbicacion
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.personal_repository import PersonalRepository
 from app.template_helpers import asset_icon, person_initials
@@ -99,12 +100,22 @@ def _choices_id_personal(personal_repo: PersonalRepository) -> list[tuple[str, s
     ]
 
 
+def _choices_ubicacion() -> list[tuple[str, str]]:
+    """Ubicación cerrada: mismas sedes que Personal (ver PersonalUbicacion),
+    para que la ubicación de un activo siempre sea una sede real y
+    consistente con las de la gente, no texto libre inventado."""
+    vacio = translate("assets.field_not_specified", _locale())
+    return [("", vacio)] + [(sede, sede) for sede in PersonalUbicacion.OPCIONES]
+
+
 def _preparar_form_nuevo(form: NuevoActivoForm, personal_repo: PersonalRepository) -> None:
     form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
+    form.ubicacion.choices = _choices_ubicacion()
     form.id_personal.choices = _choices_id_personal(personal_repo)
 
 
 def _preparar_form_editar(form: EditarActivoForm, personal_repo: PersonalRepository) -> None:
+    form.ubicacion.choices = _choices_ubicacion()
     form.id_personal.choices = _choices_id_personal(personal_repo)
 
 
@@ -144,9 +155,20 @@ def _contexto_index(
         for categoria, label_key in CATEGORIAS_FILTRO
     ]
 
+    personal_json = [
+        {
+            "id": persona.id,
+            "nombre": f"{persona.nombre} {persona.apellido}",
+            "iniciales": person_initials(persona),
+            "departamento": persona.departamento,
+        }
+        for persona in personal_repo.get_all()
+    ]
+
     return {
         "assets": assets,
         "assets_json": [_serializar_asset(asset) for asset in assets],
+        "personal_json": personal_json,
         "total_assets": total_assets,
         "total_disponibles": total_disponibles,
         "total_asignados": total_asignados,
@@ -183,7 +205,7 @@ def crear():
                 nombre=form.nombre.data.strip(),
                 categoria=form.categoria.data,
                 numero_serie=_limpio(form.numero_serie.data),
-                ubicacion=_limpio(form.ubicacion.data),
+                ubicacion=form.ubicacion.data or None,
                 id_personal=form.id_personal.data or None,
             ),
         ):
@@ -216,7 +238,7 @@ def editar(id_asset):
             form,
             lambda: asset_repo.update(
                 asset,
-                ubicacion=_limpio(form.ubicacion.data),
+                ubicacion=form.ubicacion.data or None,
                 id_personal=form.id_personal.data or None,
                 cpu=_limpio(form.cpu.data),
                 ram=_limpio(form.ram.data),

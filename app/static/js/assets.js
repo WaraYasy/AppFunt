@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const assets = JSON.parse(dataEl.textContent);
   const i18n = JSON.parse(i18nEl.textContent);
   const assetsById = Object.fromEntries(assets.map((asset) => [asset.id, asset]));
+  const personalDataEl = document.getElementById("assetsPersonalData");
+  const personal = personalDataEl ? JSON.parse(personalDataEl.textContent) : [];
 
   const rows = document.querySelectorAll(".asset-row");
   const noResultsRow = document.getElementById("noResultsRow");
@@ -43,6 +45,96 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     return { open, close };
+  }
+
+  // --- Selector de custodio con buscador (ver macros/forms.html: campo_asignacion).
+  // El <select> nativo (`fieldId`) sigue siendo el que valida y se manda con
+  // el form; este widget solo lo maneja desde arriba. ---
+  function wireAssignPicker(fieldId, personalList) {
+    const nativeSelect = document.getElementById(fieldId);
+    const picker = document.querySelector(`.assign-picker[data-picker-for="${fieldId}"]`);
+    if (!nativeSelect || !picker) return { render: () => {}, setValue: () => {} };
+
+    const currentLabel = picker.querySelector("[data-current-label]");
+    const assignBtn = picker.querySelector("[data-assign-btn]");
+    const assignBtnLabel = picker.querySelector("[data-assign-btn-label]");
+    const clearBtn = picker.querySelector("[data-clear-btn]");
+    const panel = picker.querySelector("[data-panel]");
+    const searchInput = picker.querySelector("[data-search]");
+    const resultsEl = picker.querySelector("[data-results]");
+
+    function personaById(id) {
+      return personalList.find((persona) => persona.id === id) || null;
+    }
+
+    function render() {
+      const persona = personaById(nativeSelect.value);
+      currentLabel.textContent = persona ? persona.nombre : i18n.assignUnassignedLabel;
+      assignBtnLabel.textContent = persona ? i18n.assignChangeButton : i18n.assignButton;
+      clearBtn.hidden = !persona;
+    }
+
+    function closePanel() {
+      panel.hidden = true;
+    }
+
+    function renderResultados(query) {
+      resultsEl.replaceChildren();
+      const q = query.trim().toLowerCase();
+      const coincidencias = personalList.filter(
+        (persona) =>
+          !q || persona.nombre.toLowerCase().includes(q) || (persona.departamento || "").toLowerCase().includes(q)
+      );
+
+      if (coincidencias.length === 0) {
+        resultsEl.appendChild(el("p", "assign-picker__empty", i18n.assignNoResults));
+        return;
+      }
+
+      coincidencias.forEach((persona) => {
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = "assign-picker__result";
+        boton.appendChild(el("span", "assign-picker__result-avatar", persona.iniciales));
+        const texto = el("span", "assign-picker__result-text");
+        texto.appendChild(el("span", "assign-picker__result-name", persona.nombre));
+        if (persona.departamento) texto.appendChild(el("span", "assign-picker__result-meta", persona.departamento));
+        boton.appendChild(texto);
+        boton.addEventListener("click", () => {
+          nativeSelect.value = persona.id;
+          render();
+          closePanel();
+        });
+        resultsEl.appendChild(boton);
+      });
+    }
+
+    function openPanel() {
+      panel.hidden = false;
+      searchInput.value = "";
+      renderResultados("");
+      searchInput.focus();
+    }
+
+    assignBtn.addEventListener("click", () => (panel.hidden ? openPanel() : closePanel()));
+    clearBtn.addEventListener("click", () => {
+      nativeSelect.value = "";
+      render();
+      closePanel();
+    });
+    searchInput.addEventListener("input", (event) => renderResultados(event.target.value));
+    document.addEventListener("click", (event) => {
+      if (!picker.contains(event.target)) closePanel();
+    });
+
+    render();
+    return {
+      render,
+      setValue(id) {
+        nativeSelect.value = id || "";
+        render();
+      },
+    };
   }
 
   // --- Drawer de detalle ---
@@ -165,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ]);
   const openNuevoActivoBtn = document.getElementById("openNuevoActivoBtn");
   if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", nuevoActivoModal.open);
+  wireAssignPicker("id_personal", personal);
 
   // --- Modal "Editar Activo" ---
   const editarActivoModal = wireModal("editarActivoModal", "editarActivoBackdrop", [
@@ -173,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ]);
   const editarActivoForm = document.getElementById("editarActivoForm");
   const editarActivoContexto = document.getElementById("editarActivoContexto");
-  const editarIdPersonalSelect = document.getElementById("editar-id_personal");
+  const editarAsignarPicker = wireAssignPicker("editar-id_personal", personal);
 
   function setFieldValue(id, value) {
     const field = document.getElementById(id);
@@ -196,12 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setFieldValue("editar-ram", asset.ram);
     setFieldValue("editar-almacenamiento", asset.almacenamiento);
     setFieldValue("editar-sistema_operativo", asset.sistemaOperativo);
-
-    // El select de custodio se arma en el servidor con <option> por cada
-    // persona; acá solo elegimos la que corresponde (o "" = sin asignar).
-    if (editarIdPersonalSelect) {
-      editarIdPersonalSelect.value = asset.idPersonal || "";
-    }
+    editarAsignarPicker.setValue(asset.idPersonal);
 
     editarActivoModal.open();
   }

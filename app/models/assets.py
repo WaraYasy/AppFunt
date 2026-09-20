@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database import Base, generar_uuid
+from app.models.personal import PersonalUbicacion
 from app.validacion import validar_longitud, validar_no_vacio, validar_opciones
 
 
@@ -54,9 +55,14 @@ class Asset(Base):
         value = validar_longitud(self, key, value)
         return validar_opciones(key, value, AssetCategoria.OPCIONES)
 
+    @validates("ubicacion")
+    def _validar_ubicacion(self, key, value):
+        value = validar_longitud(self, key, value)
+        return validar_opciones(key, value, PersonalUbicacion.OPCIONES)
+
     @validates(
         "codigo", "numero_serie", "estado", "cpu", "ram",
-        "almacenamiento", "sistema_operativo", "garantia", "ubicacion",
+        "almacenamiento", "sistema_operativo", "garantia",
     )
     def _validar_opcionales(self, key, value):
         return validar_longitud(self, key, value)
