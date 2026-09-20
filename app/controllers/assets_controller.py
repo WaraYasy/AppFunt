@@ -4,7 +4,7 @@ from flask import Blueprint, render_template
 from app.database import SessionLocal
 from app.models.assets import Asset, AssetCategoria
 from app.repositories.asset_repository import AssetRepository
-from app.template_helpers import asset_icon, user_initials
+from app.template_helpers import asset_icon, person_initials
 
 assets_bp = Blueprint("assets", __name__)
 
@@ -19,15 +19,15 @@ CATEGORIAS_FILTRO = [
 
 
 def _serializar_asset(asset: Asset) -> dict:
-    """Convierte un Asset (y su usuario, si tiene) en un dict listo para el panel lateral."""
-    usuario = asset.usuario
+    """Convierte un Asset (y su custodio, si tiene) en un dict listo para el panel lateral."""
+    custodio = asset.custodio
     return {
         "id": asset.id,
         "codigo": asset.codigo,
         "nombre": asset.nombre,
         "categoria": asset.categoria,
         "icono": asset_icon(asset),
-        "asignado": bool(asset.id_user),
+        "asignado": bool(asset.id_personal),
         "estado": asset.estado,
         "numeroSerie": asset.numero_serie,
         "cpu": asset.cpu,
@@ -35,15 +35,15 @@ def _serializar_asset(asset: Asset) -> dict:
         "almacenamiento": asset.almacenamiento,
         "sistemaOperativo": asset.sistema_operativo,
         "garantia": asset.garantia,
-        "usuario": (
+        "custodio": (
             {
-                "nombre": f"{usuario.nombre} {usuario.apellido}",
-                "iniciales": user_initials(usuario),
-                "rol": usuario.rol,
-                "departamento": usuario.departamento,
-                "ubicacion": usuario.ubicacion,
+                "nombre": f"{custodio.nombre} {custodio.apellido}",
+                "iniciales": person_initials(custodio),
+                "rol": custodio.rol,
+                "departamento": custodio.departamento,
+                "ubicacion": custodio.ubicacion,
             }
-            if usuario
+            if custodio
             else None
         ),
     }

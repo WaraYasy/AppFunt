@@ -18,9 +18,11 @@ def create_app(config_class=Config):
 
     from app.controllers.assets_controller import assets_bp
     from app.controllers.base_controller import base_bp
+    from app.controllers.personal_controller import personal_bp
 
     app.register_blueprint(base_bp)
     app.register_blueprint(assets_bp)
+    app.register_blueprint(personal_bp)
 
     from app import i18n, template_helpers
 

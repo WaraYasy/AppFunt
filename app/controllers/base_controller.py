@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 
 from app.database import SessionLocal
 from app.repositories.asset_repository import AssetRepository
-from app.repositories.user_repository import UserRepository
+from app.repositories.personal_repository import PersonalRepository
 
 base_bp = Blueprint("base", __name__)
 
@@ -11,9 +11,9 @@ base_bp = Blueprint("base", __name__)
 def index():
     db = SessionLocal()
     asset_repo = AssetRepository(db)
-    user_repo = UserRepository(db)
+    personal_repo = PersonalRepository(db)
 
-    total_empleados = user_repo.count_all()
+    total_empleados = personal_repo.count_all()
     total_assets = asset_repo.count_all()
     total_disponibles = asset_repo.count_disponibles()
     total_asignados = asset_repo.count_asignados()

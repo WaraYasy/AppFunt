@@ -26,7 +26,7 @@ class Asset(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     codigo: Mapped[str | None] = mapped_column(String(6), unique=True, index=True)
-    id_user: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"))
+    id_personal: Mapped[str | None] = mapped_column(String(36), ForeignKey("personal.id"))
     nombre: Mapped[str] = mapped_column(String(100))
     categoria: Mapped[str] = mapped_column(String(20), default=AssetCategoria.OTRO)
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
@@ -40,7 +40,7 @@ class Asset(Base):
     sistema_operativo: Mapped[str | None] = mapped_column(String(80))
     garantia: Mapped[str | None] = mapped_column(String(120))
 
-    usuario: Mapped["Users"] = relationship(back_populates="assets")
+    custodio: Mapped["Personal"] = relationship(back_populates="assets")
 
     def __repr__(self) -> str:
         return f"<Asset {self.nombre} ({self.categoria})>"

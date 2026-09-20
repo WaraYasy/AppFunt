@@ -1,4 +1,5 @@
 from app.models.assets import Asset, AssetCategoria
-from app.models.users import Users
+from app.models.personal import Personal, PersonalModalidad
+from app.models.usuario import Usuario
 
-__all__ = ["Asset", "AssetCategoria", "Users"]
+__all__ = ["Asset", "AssetCategoria", "Personal", "PersonalModalidad", "Usuario"]

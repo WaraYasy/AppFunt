@@ -10,16 +10,16 @@ class AssetRepository:
         self.db = db
 
     def get_all(self) -> list[Asset]:
-        """Devuelve todos los assets, con su usuario cargado, del más reciente al más antiguo."""
+        """Devuelve todos los assets, con su custodio cargado, del más reciente al más antiguo."""
         return (
             self.db.query(Asset)
-            .options(joinedload(Asset.usuario))
+            .options(joinedload(Asset.custodio))
             .order_by(Asset.created.desc())
             .all()
         )
 
-    def get_all_by_user(self, id_user: str) -> list[Asset]:
-        return self.db.query(Asset).filter(Asset.id_user == id_user).all()
+    def get_all_by_personal(self, id_personal: str) -> list[Asset]:
+        return self.db.query(Asset).filter(Asset.id_personal == id_personal).all()
 
     def count_all(self) -> int:
         return self.db.query(func.count(Asset.id)).scalar()
@@ -42,15 +42,15 @@ class AssetRepository:
     def count_asignados(self) -> int:
         return (
             self.db.query(func.count(Asset.id))
-            .filter(Asset.id_user.isnot(None))
+            .filter(Asset.id_personal.isnot(None))
             .scalar()
         )
 
     def get_recientes(self, limite: int = 4) -> list[Asset]:
-        """Devuelve los assets más recientemente creados, con su usuario cargado."""
+        """Devuelve los assets más recientemente creados, con su custodio cargado."""
         return (
             self.db.query(Asset)
-            .options(joinedload(Asset.usuario))
+            .options(joinedload(Asset.custodio))
             .order_by(Asset.created.desc())
             .limit(limite)
             .all()

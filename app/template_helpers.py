@@ -1,6 +1,6 @@
 """Funciones auxiliares expuestas a las plantillas Jinja."""
 from app.models.assets import Asset, AssetCategoria
-from app.models.users import Users
+from app.models.personal import Personal
 
 ASSET_ICONS = {
     AssetCategoria.PORTATIL: "laptop",
@@ -15,7 +15,7 @@ ASSET_ICONS = {
 
 def estado_dot_class(asset: Asset) -> str:
     """Clase CSS para el indicador de estado de un asset en listados."""
-    if asset.id_user:
+    if asset.id_personal:
         return "movement-item__dot--assigned"
     if asset.estado == "Disponible":
         return "movement-item__dot--available"
@@ -29,18 +29,18 @@ def asset_icon(asset: Asset) -> str:
 
 def asset_status_modifier(asset: Asset) -> str:
     """Modificador CSS ('assigned' | 'available' | 'neutral') según el estado del asset."""
-    if asset.id_user:
+    if asset.id_personal:
         return "assigned"
     if asset.estado == "Disponible":
         return "available"
     return "neutral"
 
 
-def user_initials(user: Users | None) -> str:
-    """Iniciales de un usuario para mostrar en un avatar. '—' si no hay usuario."""
-    if not user:
+def person_initials(persona: Personal | None) -> str:
+    """Iniciales de una persona para mostrar en un avatar. '—' si no hay persona."""
+    if not persona:
         return "—"
-    iniciales = (user.nombre[:1] + user.apellido[:1]).upper()
+    iniciales = (persona.nombre[:1] + persona.apellido[:1]).upper()
     return iniciales or "—"
 
 
@@ -48,4 +48,4 @@ def init_app(app):
     app.jinja_env.globals["estado_dot_class"] = estado_dot_class
     app.jinja_env.globals["asset_icon"] = asset_icon
     app.jinja_env.globals["asset_status_modifier"] = asset_status_modifier
-    app.jinja_env.globals["user_initials"] = user_initials
+    app.jinja_env.globals["person_initials"] = person_initials
