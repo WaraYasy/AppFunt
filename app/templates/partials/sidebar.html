@@ -26,9 +26,9 @@
         <span>{{ t('nav.assets') }}</span>
       </a>
       <a
-        href="{{ url_for('personal.index') }}"
-        class="nav-link {{ 'is-active' if request.endpoint == 'personal.index' else '' }}"
-        {{ 'aria-current="page"' | safe if request.endpoint == 'personal.index' else '' }}
+        href="{{ url_for('personas.index') }}"
+        class="nav-link {{ 'is-active' if request.endpoint == 'personas.index' else '' }}"
+        {{ 'aria-current="page"' | safe if request.endpoint == 'personas.index' else '' }}
       >
         <span class="material-symbols-outlined">badge</span>
         <span>{{ t('nav.people') }}</span>
@@ -106,7 +106,7 @@
       </div>
       <div class="sidebar__account-info">
         <div class="sidebar__account-name">
-          {{ current_user.personal.nombre ~ " " ~ current_user.personal.apellido if current_user.personal else current_user.username }}
+          {{ current_user.persona.nombre ~ " " ~ current_user.persona.apellido if current_user.persona else current_user.username }}
         </div>
         <div class="sidebar__account-role">{{ current_user.username }}</div>
       </div>

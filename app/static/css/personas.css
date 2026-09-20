@@ -1,6 +1,6 @@
 /*
- * Estilos específicos de la vista Personal (directorio de colaboradores).
- * Solo se carga en personal.html (ver base.html: block extra_css).
+ * Estilos específicos de la vista Personas (directorio de colaboradores).
+ * Solo se carga en personas.html (ver base.html: block extra_css).
  * Depende de tokens.css y de los componentes compartidos en style.css
  * (page-header, list-filter-bar, filter-pills, data-table*, person-cell,
  * status-pill, drawer*, spec-list/row, text-strong, badge, search-field, btn).

@@ -22,12 +22,12 @@ def create_app(config_class=Config):
     from app.controllers.assets_controller import assets_bp
     from app.controllers.auth_controller import auth_bp
     from app.controllers.base_controller import base_bp
-    from app.controllers.personal_controller import personal_bp
+    from app.controllers.personas_controller import personas_bp
     from app.controllers.settings_controller import settings_bp
 
     app.register_blueprint(base_bp)
     app.register_blueprint(assets_bp)
-    app.register_blueprint(personal_bp)
+    app.register_blueprint(personas_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(auth_bp)
 

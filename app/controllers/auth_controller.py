@@ -1,4 +1,4 @@
-"""Controlador de autenticación: inicio/cierre de sesión contra Usuario."""
+"""Controlador de autenticación: inicio/cierre de sesión contra Admin."""
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -8,7 +8,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from app.database import SessionLocal
 from app.forms import LoginForm
 from app.i18n import DEFAULT_LOCALE, translate
-from app.repositories.usuario_repository import UsuarioRepository
+from app.repositories.admin_repository import AdminRepository
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -34,13 +34,13 @@ def login():
         return redirect(url_for("base.index"))
 
     db = SessionLocal()
-    usuario_repo = UsuarioRepository(db)
+    admin_repo = AdminRepository(db)
 
     form = LoginForm()
     if form.validate_on_submit():
-        usuario = usuario_repo.get_by_username(form.username.data.strip())
-        if usuario is not None and usuario.check_password(form.password.data):
-            login_user(usuario, remember=form.remember.data)
+        admin = admin_repo.get_by_username(form.username.data.strip())
+        if admin is not None and admin.check_password(form.password.data):
+            login_user(admin, remember=form.remember.data)
             destino = _destino_seguro(request.args.get("next"))
             return redirect(destino or url_for("base.index"))
         form.password.errors.append("auth.error_invalid_credentials")

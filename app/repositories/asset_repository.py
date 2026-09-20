@@ -55,8 +55,8 @@ class AssetRepository:
             .all()
         )
 
-    def get_all_by_personal(self, id_personal: str) -> list[Asset]:
-        return self.db.query(Asset).filter(Asset.id_personal == id_personal).all()
+    def get_all_by_persona(self, id_persona: str) -> list[Asset]:
+        return self.db.query(Asset).filter(Asset.id_persona == id_persona).all()
 
     def count_all(self) -> int:
         return self.db.query(func.count(Asset.id)).scalar()
@@ -79,7 +79,7 @@ class AssetRepository:
     def count_asignados(self) -> int:
         return (
             self.db.query(func.count(Asset.id))
-            .filter(Asset.id_personal.isnot(None))
+            .filter(Asset.id_persona.isnot(None))
             .scalar()
         )
 

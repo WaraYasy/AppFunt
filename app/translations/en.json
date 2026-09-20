@@ -144,7 +144,7 @@
     "delete_confirm_body": "Delete \"{nombre}\"? This action can't be undone.",
     "delete_confirm_submit": "Delete asset"
   },
-  "personal": {
+  "personas": {
     "title": "People",
     "subtitle": "Collaborator directory and technology equipment allocation",
     "register": "Add person",

@@ -1,24 +1,24 @@
 /*
- * Comportamiento de la vista Personal: filtrado por modalidad/estado de
+ * Comportamiento de la vista Personas: filtrado por modalidad/estado de
  * asignación/búsqueda, panel lateral (drawer) con la ficha de la persona,
  * y los modales de alta/edición/eliminación. Se carga solo en
- * personal.html (ver base.html: block extra_js).
+ * personas.html (ver base.html: block extra_js).
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const dataEl = document.getElementById("personalData");
-  const i18nEl = document.getElementById("personalI18n");
+  const dataEl = document.getElementById("personasData");
+  const i18nEl = document.getElementById("personasI18n");
   if (!dataEl || !i18nEl) return;
 
-  const personal = JSON.parse(dataEl.textContent);
+  const personas = JSON.parse(dataEl.textContent);
   const i18n = JSON.parse(i18nEl.textContent);
-  const personaById = Object.fromEntries(personal.map((persona) => [persona.id, persona]));
+  const personaById = Object.fromEntries(personas.map((persona) => [persona.id, persona]));
 
   const rows = document.querySelectorAll(".person-row");
   const noResultsRow = document.getElementById("noResultsRow");
   const visibleCountEl = document.getElementById("visibleCount");
   const filterPills = document.querySelectorAll("#filterPills .filter-pill");
-  const searchInput = document.getElementById("personalSearch");
+  const searchInput = document.getElementById("personasSearch");
 
   // --- Helper genérico para abrir/cerrar un par modal+backdrop ---
   function wireModal(modalId, backdropId, extraCloseIds) {
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const persona = personaById[personaId];
     if (!persona || !editarColaboradorForm) return;
 
-    editarColaboradorForm.action = `/personal/${persona.id}/editar`;
+    editarColaboradorForm.action = `/personas/${persona.id}/editar`;
     if (editarColaboradorContexto) editarColaboradorContexto.textContent = persona.nombre;
 
     setFieldValue("editar-email", persona.email);
@@ -224,10 +224,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const persona = personaById[personaId];
     if (!persona || !eliminarColaboradorForm) return;
 
-    eliminarColaboradorForm.action = `/personal/${persona.id}/eliminar`;
+    eliminarColaboradorForm.action = `/personas/${persona.id}/eliminar`;
 
     // Si tiene una cuenta de acceso vinculada, el servidor va a rechazar el
-    // borrado igual (ver personal_controller.eliminar) — acá se lo decimos
+    // borrado igual (ver personas_controller.eliminar) — acá se lo decimos
     // antes de que intente, en vez de dejar que mande el form para nada.
     if (eliminarColaboradorSubmit) eliminarColaboradorSubmit.hidden = persona.tieneCuenta;
 
@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function abrirQuitarActivo(persona, asset) {
     if (!persona || !asset || !quitarActivoForm) return;
 
-    quitarActivoForm.action = `/personal/${persona.id}/activos/${asset.id}/quitar`;
+    quitarActivoForm.action = `/personas/${persona.id}/activos/${asset.id}/quitar`;
     if (quitarActivoBody) {
       quitarActivoBody.textContent = i18n.unassignConfirmBody.replace("{nombre}", asset.nombre);
     }

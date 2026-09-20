@@ -144,11 +144,11 @@
     "delete_confirm_body": "¿Eliminar \"{nombre}\"? Esta acción no se puede deshacer.",
     "delete_confirm_submit": "Eliminar activo"
   },
-  "personal": {
-    "title": "Personal",
+  "personas": {
+    "title": "Personas",
     "subtitle": "Directorio de colaboradores y dotación de equipamiento tecnológico",
     "register": "Añadir persona",
-    "kpi_total_label": "Total Personal",
+    "kpi_total_label": "Total Personas",
     "kpi_total_caption": "censo activo",
     "kpi_with_assets_label": "Con Equipo Asignado",
     "kpi_with_assets_caption": "con hardware inventariado",

@@ -1,6 +1,6 @@
 """Funciones auxiliares expuestas a las plantillas Jinja."""
 from app.models.assets import Asset, AssetCategoria
-from app.models.personal import Personal
+from app.models.persona import Persona
 
 ASSET_ICONS = {
     AssetCategoria.PORTATIL: "laptop",
@@ -15,7 +15,7 @@ ASSET_ICONS = {
 
 def estado_dot_class(asset: Asset) -> str:
     """Clase CSS para el indicador de estado de un asset en listados."""
-    if asset.id_personal:
+    if asset.id_persona:
         return "movement-item__dot--assigned"
     if asset.estado == "Disponible":
         return "movement-item__dot--available"
@@ -29,14 +29,14 @@ def asset_icon(asset: Asset) -> str:
 
 def asset_status_modifier(asset: Asset) -> str:
     """Modificador CSS ('assigned' | 'available' | 'neutral') según el estado del asset."""
-    if asset.id_personal:
+    if asset.id_persona:
         return "assigned"
     if asset.estado == "Disponible":
         return "available"
     return "neutral"
 
 
-def person_initials(persona: Personal | None) -> str:
+def person_initials(persona: Persona | None) -> str:
     """Iniciales de una persona para mostrar en un avatar. '—' si no hay persona."""
     if not persona:
         return "—"

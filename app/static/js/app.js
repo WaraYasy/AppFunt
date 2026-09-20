@@ -15,7 +15,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 // Buscador global del topbar: no filtra nada en el lugar (aparece en
-// Dashboard/Activos/Personal, no siempre hay algo que filtrar ahí mismo).
+// Dashboard/Activos/Personas, no siempre hay algo que filtrar ahí mismo).
 // Al presionar Enter, manda a la búsqueda real de Activos con ese texto.
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("globalSearch");

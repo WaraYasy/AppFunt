@@ -1,64 +1,64 @@
 {% extends "base.html" %}
 {% from "macros/forms.html" import campo_texto, campo_select, campo_chips with context %}
 
-{% block title %}{{ t('personal.title') }} · {{ t('brand.name') }}{% endblock %}
+{% block title %}{{ t('personas.title') }} · {{ t('brand.name') }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/personal.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/personas.css') }}" />
 {% endblock %}
 
 {% block content %}
 <section class="page-header">
   <div>
-    <h1 class="page-header__title">{{ t('personal.title') }}</h1>
-    <p class="page-header__subtitle">{{ t('personal.subtitle') }}</p>
+    <h1 class="page-header__title">{{ t('personas.title') }}</h1>
+    <p class="page-header__subtitle">{{ t('personas.subtitle') }}</p>
   </div>
   <div class="page-header__actions">
     <button type="button" class="btn btn-primary" id="openNuevoColaboradorBtn">
       <span class="material-symbols-outlined">person_add</span>
-      <span>{{ t('personal.register') }}</span>
+      <span>{{ t('personas.register') }}</span>
     </button>
   </div>
 </section>
 
-<section class="kpi-grid" aria-label="{{ t('personal.title') }}">
+<section class="kpi-grid" aria-label="{{ t('personas.title') }}">
   <div class="card kpi-card">
     <div class="kpi-card__header">
-      <span class="kpi-card__label">{{ t('personal.kpi_total_label') }}</span>
+      <span class="kpi-card__label">{{ t('personas.kpi_total_label') }}</span>
       <span class="material-symbols-outlined kpi-card__icon">group</span>
     </div>
     <div>
       <span class="kpi-card__value">{{ total_empleados }}</span>
-      <p class="kpi-card__caption">{{ t('personal.kpi_total_caption') }}</p>
+      <p class="kpi-card__caption">{{ t('personas.kpi_total_caption') }}</p>
     </div>
   </div>
 
   <div class="card kpi-card">
     <div class="kpi-card__header">
-      <span class="kpi-card__label">{{ t('personal.kpi_with_assets_label') }}</span>
+      <span class="kpi-card__label">{{ t('personas.kpi_with_assets_label') }}</span>
       <span class="badge badge-info">{{ porcentaje_con_activos }}%</span>
     </div>
     <div>
       <span class="kpi-card__value">{{ con_activos }}</span>
-      <p class="kpi-card__caption">{{ t('personal.kpi_with_assets_caption') }}</p>
+      <p class="kpi-card__caption">{{ t('personas.kpi_with_assets_caption') }}</p>
     </div>
   </div>
 
   <div class="card kpi-card">
     <div class="kpi-card__header">
-      <span class="kpi-card__label">{{ t('personal.kpi_pending_label') }}</span>
+      <span class="kpi-card__label">{{ t('personas.kpi_pending_label') }}</span>
       <span class="material-symbols-outlined kpi-card__icon">person_add</span>
     </div>
     <div>
       <span class="kpi-card__value">{{ sin_activos }}</span>
-      <p class="kpi-card__caption">{{ t('personal.kpi_pending_caption') }}</p>
+      <p class="kpi-card__caption">{{ t('personas.kpi_pending_caption') }}</p>
     </div>
   </div>
 </section>
 
 <section class="list-filter-bar">
   <div class="filter-pills" id="filterPills">
-    {% for filtro in filtros_personal %}
+    {% for filtro in filtros_personas %}
     <button
       type="button"
       class="filter-pill {{ 'is-active' if filtro.valor == 'all' else '' }}"
@@ -73,10 +73,10 @@
   <div class="search-field list-search">
     <span class="material-symbols-outlined search-field__icon">search</span>
     <input
-      id="personalSearch"
+      id="personasSearch"
       type="text"
       class="search-field__input"
-      placeholder="{{ t('personal.search_placeholder') }}"
+      placeholder="{{ t('personas.search_placeholder') }}"
     />
   </div>
 </section>
@@ -86,16 +86,16 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ t('personal.table_collaborator') }}</th>
-          <th>{{ t('personal.table_department') }}</th>
-          <th>{{ t('personal.table_location') }}</th>
-          <th>{{ t('personal.table_assets') }}</th>
-          <th>{{ t('personal.table_status') }}</th>
-          <th class="is-right">{{ t('personal.table_detail') }}</th>
+          <th>{{ t('personas.table_collaborator') }}</th>
+          <th>{{ t('personas.table_department') }}</th>
+          <th>{{ t('personas.table_location') }}</th>
+          <th>{{ t('personas.table_assets') }}</th>
+          <th>{{ t('personas.table_status') }}</th>
+          <th class="is-right">{{ t('personas.table_detail') }}</th>
         </tr>
       </thead>
-      <tbody id="personalTableBody">
-        {% for persona in personal %}
+      <tbody id="personasTableBody">
+        {% for persona in personas %}
         <tr
           class="person-row"
           data-persona-id="{{ persona.id }}"
@@ -130,44 +130,44 @@
               <span class="material-symbols-outlined">devices</span>
               <span>
                 {{ persona.assets|length }}
-                {{ t('personal.assets_singular') if persona.assets|length == 1 else t('personal.assets_plural') }}
+                {{ t('personas.assets_singular') if persona.assets|length == 1 else t('personas.assets_plural') }}
               </span>
             </span>
             {% else %}
-            <span class="asset-count-badge asset-count-badge--empty">{{ t('personal.no_assets_badge') }}</span>
+            <span class="asset-count-badge asset-count-badge--empty">{{ t('personas.no_assets_badge') }}</span>
             {% endif %}
           </td>
           <td>
             <span class="status-pill status-pill--{{ 'assigned' if persona.assets else 'neutral' }}">
               <span class="status-pill__dot"></span>
-              {% if persona.assets %}{{ t('personal.status_complete') }}{% else %}{{ t('personal.status_pending') }}{% endif %}
+              {% if persona.assets %}{{ t('personas.status_complete') }}{% else %}{{ t('personas.status_pending') }}{% endif %}
             </span>
           </td>
           <td class="is-right">
             <button type="button" class="table-link-btn" data-open-person="{{ persona.id }}">
-              <span>{{ t('personal.view_detail') }}</span>
+              <span>{{ t('personas.view_detail') }}</span>
               <span class="material-symbols-outlined">arrow_forward</span>
             </button>
           </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="6" class="data-table-empty">{{ t('personal.no_people_yet') }}</td>
+          <td colspan="6" class="data-table-empty">{{ t('personas.no_people_yet') }}</td>
         </tr>
         {% endfor %}
         <tr id="noResultsRow" style="display: none;">
-          <td colspan="6" class="data-table-empty">{{ t('personal.empty_state') }}</td>
+          <td colspan="6" class="data-table-empty">{{ t('personas.empty_state') }}</td>
         </tr>
       </tbody>
     </table>
   </div>
   <div class="data-table-footer">
     <span>
-      {{ t('personal.showing_prefix') }}
-      <b id="visibleCount">{{ personal|length }}</b>
-      {{ t('personal.of_label') }}
+      {{ t('personas.showing_prefix') }}
+      <b id="visibleCount">{{ personas|length }}</b>
+      {{ t('personas.of_label') }}
       <b>{{ total_empleados }}</b>
-      {{ t('personal.people_word') }}
+      {{ t('personas.people_word') }}
     </span>
   </div>
 </section>
@@ -198,8 +198,8 @@
         type="button"
         class="drawer__close"
         id="drawerClose"
-        title="{{ t('personal.drawer_close') }} (Esc)"
-        aria-label="{{ t('personal.drawer_close') }}"
+        title="{{ t('personas.drawer_close') }} (Esc)"
+        aria-label="{{ t('personas.drawer_close') }}"
       >
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -210,20 +210,20 @@
         <div class="drawer__section-header">
           <h3 class="drawer__section-title">
             <span class="material-symbols-outlined">badge</span>
-            {{ t('personal.drawer_contact_title') }}
+            {{ t('personas.drawer_contact_title') }}
           </h3>
         </div>
         <div class="card spec-list">
           <div class="spec-row">
-            <span class="spec-row__label">{{ t('personal.drawer_department') }}</span>
+            <span class="spec-row__label">{{ t('personas.drawer_department') }}</span>
             <span class="spec-row__value" id="drawerDepartment"></span>
           </div>
           <div class="spec-row">
-            <span class="spec-row__label">{{ t('personal.drawer_location') }}</span>
+            <span class="spec-row__label">{{ t('personas.drawer_location') }}</span>
             <span class="spec-row__value" id="drawerLocation"></span>
           </div>
           <div class="spec-row">
-            <span class="spec-row__label">{{ t('personal.drawer_since') }}</span>
+            <span class="spec-row__label">{{ t('personas.drawer_since') }}</span>
             <span class="spec-row__value" id="drawerSince"></span>
           </div>
         </div>
@@ -233,7 +233,7 @@
         <div class="drawer__section-header">
           <h3 class="drawer__section-title">
             <span class="material-symbols-outlined">inventory_2</span>
-            {{ t('personal.drawer_assets_title') }}
+            {{ t('personas.drawer_assets_title') }}
           </h3>
           <span class="text-strong" style="font-size: var(--text-xs);" id="drawerAssetCounter"></span>
         </div>
@@ -262,7 +262,7 @@
   aria-modal="true"
   aria-labelledby="nuevoColaboradorTitulo"
 >
-  <form method="post" action="{{ url_for('personal.crear') }}" novalidate>
+  <form method="post" action="{{ url_for('personas.crear') }}" novalidate>
     {{ form.hidden_tag() }}
     <div class="modal__header">
       <div class="modal__header-identity">
@@ -270,8 +270,8 @@
           <span class="material-symbols-outlined">person_add</span>
         </div>
         <div>
-          <h2 class="modal__title" id="nuevoColaboradorTitulo">{{ t('personal.modal_title') }}</h2>
-          <p class="modal__subtitle">{{ t('personal.modal_subtitle') }}</p>
+          <h2 class="modal__title" id="nuevoColaboradorTitulo">{{ t('personas.modal_title') }}</h2>
+          <p class="modal__subtitle">{{ t('personas.modal_subtitle') }}</p>
         </div>
       </div>
       <button type="button" class="drawer__close" id="closeNuevoColaboradorBtn" aria-label="{{ t('forms.cancel') }}">
@@ -280,21 +280,21 @@
     </div>
     <div class="modal__body">
       <div class="field-grid">
-        {{ campo_texto(form.nombre, t('personal.modal_field_name'), requerido=True, placeholder="Elena") }}
-        {{ campo_texto(form.apellido, t('personal.modal_field_lastname'), requerido=True, placeholder="Salazar") }}
+        {{ campo_texto(form.nombre, t('personas.modal_field_name'), requerido=True, placeholder="Elena") }}
+        {{ campo_texto(form.apellido, t('personas.modal_field_lastname'), requerido=True, placeholder="Salazar") }}
       </div>
-      {{ campo_texto(form.email, t('personal.modal_field_email'), placeholder="elena.salazar@empresa.com") }}
+      {{ campo_texto(form.email, t('personas.modal_field_email'), placeholder="elena.salazar@empresa.com") }}
       <div class="field-grid">
-        {{ campo_select(form.departamento, t('personal.modal_field_department')) }}
-        {{ campo_select(form.ubicacion, t('personal.modal_field_location')) }}
+        {{ campo_select(form.departamento, t('personas.modal_field_department')) }}
+        {{ campo_select(form.ubicacion, t('personas.modal_field_location')) }}
       </div>
-      {{ campo_chips(form.modalidad, t('personal.modal_field_modality')) }}
+      {{ campo_chips(form.modalidad, t('personas.modal_field_modality')) }}
     </div>
     <div class="modal__footer">
       <button type="button" class="btn btn-pill" id="cancelNuevoColaboradorBtn">{{ t('forms.cancel') }}</button>
       <button type="submit" class="btn btn-primary">
         <span class="material-symbols-outlined">person_add</span>
-        <span>{{ t('personal.modal_submit') }}</span>
+        <span>{{ t('personas.modal_submit') }}</span>
       </button>
     </div>
   </form>
@@ -310,7 +310,7 @@
 >
   <form
     method="post"
-    action="{{ url_for('personal.editar', id_persona=id_editar_abierto) if id_editar_abierto else '#' }}"
+    action="{{ url_for('personas.editar', id_persona=id_editar_abierto) if id_editar_abierto else '#' }}"
     id="editarColaboradorForm"
     novalidate
   >
@@ -321,9 +321,9 @@
           <span class="material-symbols-outlined">edit</span>
         </div>
         <div>
-          <h2 class="modal__title" id="editarColaboradorTitulo">{{ t('personal.modal_edit_title') }}</h2>
+          <h2 class="modal__title" id="editarColaboradorTitulo">{{ t('personas.modal_edit_title') }}</h2>
           <p class="modal__subtitle" id="editarColaboradorContexto"></p>
-          <p class="modal__subtitle">{{ t('personal.modal_edit_subtitle') }}</p>
+          <p class="modal__subtitle">{{ t('personas.modal_edit_subtitle') }}</p>
         </div>
       </div>
       <button type="button" class="drawer__close" id="closeEditarColaboradorBtn" aria-label="{{ t('forms.cancel') }}">
@@ -331,16 +331,16 @@
       </button>
     </div>
     <div class="modal__body">
-      {{ campo_texto(form_editar.email, t('personal.modal_field_email')) }}
-      {{ campo_select(form_editar.departamento, t('personal.modal_field_department')) }}
-      {{ campo_select(form_editar.ubicacion, t('personal.modal_field_location')) }}
-      {{ campo_chips(form_editar.modalidad, t('personal.modal_field_modality')) }}
+      {{ campo_texto(form_editar.email, t('personas.modal_field_email')) }}
+      {{ campo_select(form_editar.departamento, t('personas.modal_field_department')) }}
+      {{ campo_select(form_editar.ubicacion, t('personas.modal_field_location')) }}
+      {{ campo_chips(form_editar.modalidad, t('personas.modal_field_modality')) }}
     </div>
     <div class="modal__footer">
       <button type="button" class="btn btn-pill" id="cancelEditarColaboradorBtn">{{ t('forms.cancel') }}</button>
       <button type="submit" class="btn btn-primary">
         <span class="material-symbols-outlined">save</span>
-        <span>{{ t('personal.modal_edit_submit') }}</span>
+        <span>{{ t('personas.modal_edit_submit') }}</span>
       </button>
     </div>
   </form>
@@ -362,7 +362,7 @@
           <span class="material-symbols-outlined">warning</span>
         </div>
         <div>
-          <h2 class="modal__title" id="eliminarColaboradorTitulo">{{ t('personal.delete_confirm_title') }}</h2>
+          <h2 class="modal__title" id="eliminarColaboradorTitulo">{{ t('personas.delete_confirm_title') }}</h2>
           <p class="modal__subtitle" id="eliminarColaboradorBody"></p>
         </div>
       </div>
@@ -379,7 +379,7 @@
       <button type="button" class="btn btn-pill" id="cancelEliminarColaboradorBtn">{{ t('forms.cancel') }}</button>
       <button type="submit" class="btn btn-danger" id="eliminarColaboradorSubmit">
         <span class="material-symbols-outlined">delete</span>
-        <span>{{ t('personal.delete_confirm_submit') }}</span>
+        <span>{{ t('personas.delete_confirm_submit') }}</span>
       </button>
     </div>
   </form>
@@ -395,7 +395,7 @@
           <span class="material-symbols-outlined">link_off</span>
         </div>
         <div>
-          <h2 class="modal__title" id="quitarActivoTitulo">{{ t('personal.unassign_confirm_title') }}</h2>
+          <h2 class="modal__title" id="quitarActivoTitulo">{{ t('personas.unassign_confirm_title') }}</h2>
           <p class="modal__subtitle" id="quitarActivoBody"></p>
         </div>
       </div>
@@ -407,29 +407,29 @@
       <button type="button" class="btn btn-pill" id="cancelQuitarActivoBtn">{{ t('forms.cancel') }}</button>
       <button type="submit" class="btn btn-danger">
         <span class="material-symbols-outlined">link_off</span>
-        <span>{{ t('personal.unassign_confirm_submit') }}</span>
+        <span>{{ t('personas.unassign_confirm_submit') }}</span>
       </button>
     </div>
   </form>
 </div>
 
-<script type="application/json" id="personalData">{{ personal_json | tojson }}</script>
-<script type="application/json" id="personalI18n">
+<script type="application/json" id="personasData">{{ personas_json | tojson }}</script>
+<script type="application/json" id="personasI18n">
   {{
     {
-      "statusComplete": t('personal.status_complete'),
-      "statusPending": t('personal.status_pending'),
-      "noData": t('personal.drawer_no_data'),
-      "noAssets": t('personal.drawer_no_assets'),
-      "assetSingular": t('personal.assets_singular'),
-      "assetPlural": t('personal.assets_plural'),
-      "deleteConfirmBody": t('personal.delete_confirm_body'),
-      "deleteConfirmBodyWithAssets": t('personal.delete_confirm_body_with_assets'),
-      "deleteBlockedHasAccount": t('personal.delete_blocked_has_account'),
-      "unassignConfirmBody": t('personal.unassign_confirm_body'),
-      "removeAssetLabel": t('personal.remove_asset_label'),
+      "statusComplete": t('personas.status_complete'),
+      "statusPending": t('personas.status_pending'),
+      "noData": t('personas.drawer_no_data'),
+      "noAssets": t('personas.drawer_no_assets'),
+      "assetSingular": t('personas.assets_singular'),
+      "assetPlural": t('personas.assets_plural'),
+      "deleteConfirmBody": t('personas.delete_confirm_body'),
+      "deleteConfirmBodyWithAssets": t('personas.delete_confirm_body_with_assets'),
+      "deleteBlockedHasAccount": t('personas.delete_blocked_has_account'),
+      "unassignConfirmBody": t('personas.unassign_confirm_body'),
+      "removeAssetLabel": t('personas.remove_asset_label'),
     } | tojson
   }}
 </script>
-<script src="{{ url_for('static', filename='js/personal.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/personas.js') }}" defer></script>
 {% endblock %}

@@ -5,7 +5,7 @@ from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database import Base, generar_uuid
-from app.models.personal import PersonalUbicacion
+from app.models.persona import PersonaUbicacion
 from app.validacion import validar_longitud, validar_no_vacio, validar_opciones
 
 
@@ -28,7 +28,7 @@ class Asset(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     codigo: Mapped[str | None] = mapped_column(String(10), unique=True, index=True)
-    id_personal: Mapped[str | None] = mapped_column(String(36), ForeignKey("personal.id"))
+    id_persona: Mapped[str | None] = mapped_column(String(36), ForeignKey("personas.id"))
     nombre: Mapped[str] = mapped_column(String(100))
     categoria: Mapped[str] = mapped_column(String(20), default=AssetCategoria.OTRO)
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
@@ -42,7 +42,7 @@ class Asset(Base):
     sistema_operativo: Mapped[str | None] = mapped_column(String(80))
     ubicacion: Mapped[str | None] = mapped_column(String(120))
 
-    custodio: Mapped["Personal"] = relationship(back_populates="assets")
+    custodio: Mapped["Persona"] = relationship(back_populates="assets")
 
     @validates("nombre")
     def _validar_nombre(self, key, value):
@@ -57,7 +57,7 @@ class Asset(Base):
     @validates("ubicacion")
     def _validar_ubicacion(self, key, value):
         value = validar_longitud(self, key, value)
-        return validar_opciones(key, value, PersonalUbicacion.OPCIONES)
+        return validar_opciones(key, value, PersonaUbicacion.OPCIONES)
 
     @validates(
         "codigo", "numero_serie", "estado", "cpu", "ram",

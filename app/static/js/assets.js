@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const assets = JSON.parse(dataEl.textContent);
   const i18n = JSON.parse(i18nEl.textContent);
   const assetsById = Object.fromEntries(assets.map((asset) => [asset.id, asset]));
-  const personalDataEl = document.getElementById("assetsPersonalData");
-  const personal = personalDataEl ? JSON.parse(personalDataEl.textContent) : [];
+  const personasDataEl = document.getElementById("assetsPersonasData");
+  const personas = personasDataEl ? JSON.parse(personasDataEl.textContent) : [];
 
   const rows = document.querySelectorAll(".asset-row");
   const noResultsRow = document.getElementById("noResultsRow");
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Selector de custodio con buscador (ver macros/forms.html: campo_asignacion).
   // El <select> nativo (`fieldId`) sigue siendo el que valida y se manda con
   // el form; este widget solo lo maneja desde arriba. ---
-  function wireAssignPicker(fieldId, personalList) {
+  function wireAssignPicker(fieldId, personasList) {
     const nativeSelect = document.getElementById(fieldId);
     const picker = document.querySelector(`.assign-picker[data-picker-for="${fieldId}"]`);
     if (!nativeSelect || !picker) return { render: () => {}, setValue: () => {} };
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultsEl = picker.querySelector("[data-results]");
 
     function personaById(id) {
-      return personalList.find((persona) => persona.id === id) || null;
+      return personasList.find((persona) => persona.id === id) || null;
     }
 
     function render() {
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderResultados(query) {
       resultsEl.replaceChildren();
       const q = query.trim().toLowerCase();
-      const coincidencias = personalList.filter(
+      const coincidencias = personasList.filter(
         (persona) =>
           !q || persona.nombre.toLowerCase().includes(q) || (persona.departamento || "").toLowerCase().includes(q)
       );
@@ -172,23 +172,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return node;
   }
 
-  function renderCustodian(usuario) {
+  function renderCustodian(custodio) {
     drawerCustodianCard.replaceChildren();
 
-    if (!usuario) {
+    if (!custodio) {
       drawerCustodianCard.appendChild(el("p", "empty-note", i18n.drawerNoCustodian));
       return;
     }
 
     const identity = el("div", "custodian-card__identity");
-    identity.appendChild(el("div", "custodian-card__avatar", usuario.iniciales));
+    identity.appendChild(el("div", "custodian-card__avatar", custodio.iniciales));
     const identityText = el("div");
-    identityText.appendChild(el("div", "custodian-card__name", usuario.nombre));
+    identityText.appendChild(el("div", "custodian-card__name", custodio.nombre));
     identity.appendChild(identityText);
 
     const grid = el("div", "custodian-card__grid");
-    grid.appendChild(buildGridEntry(i18n.drawerDepartment, usuario.departamento));
-    grid.appendChild(buildGridEntry(i18n.drawerLocation, usuario.ubicacion));
+    grid.appendChild(buildGridEntry(i18n.drawerDepartment, custodio.departamento));
+    grid.appendChild(buildGridEntry(i18n.drawerLocation, custodio.ubicacion));
 
     drawerCustodianCard.appendChild(identity);
     drawerCustodianCard.appendChild(grid);
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerBackdrop.addEventListener("click", closeDrawer);
 
   // --- Modal "Nuevo Activo" ---
-  const nuevoAsignarPicker = wireAssignPicker("id_personal", personal);
+  const nuevoAsignarPicker = wireAssignPicker("id_persona", personas);
   const nuevoActivoModal = wireModal(
     "nuevoActivoModal",
     "nuevoActivoBackdrop",
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", nuevoActivoModal.open);
 
   // --- Modal "Editar Activo" ---
-  const editarAsignarPicker = wireAssignPicker("editar-id_personal", personal);
+  const editarAsignarPicker = wireAssignPicker("editar-id_persona", personas);
   const editarActivoModal = wireModal(
     "editarActivoModal",
     "editarActivoBackdrop",
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setFieldValue("editar-ram", asset.ram);
     setFieldValue("editar-almacenamiento", asset.almacenamiento);
     setFieldValue("editar-sistema_operativo", asset.sistemaOperativo);
-    editarAsignarPicker.setValue(asset.idPersonal);
+    editarAsignarPicker.setValue(asset.idPersona);
 
     editarActivoModal.open();
   }

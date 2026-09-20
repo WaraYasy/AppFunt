@@ -3,7 +3,7 @@ from flask_login import login_required
 
 from app.database import SessionLocal
 from app.repositories.asset_repository import AssetRepository
-from app.repositories.personal_repository import PersonalRepository
+from app.repositories.persona_repository import PersonaRepository
 
 base_bp = Blueprint("base", __name__)
 
@@ -18,9 +18,9 @@ def _requerir_login():
 def index():
     db = SessionLocal()
     asset_repo = AssetRepository(db)
-    personal_repo = PersonalRepository(db)
+    persona_repo = PersonaRepository(db)
 
-    total_empleados = personal_repo.count_all()
+    total_empleados = persona_repo.count_all()
     total_assets = asset_repo.count_all()
     total_disponibles = asset_repo.count_disponibles()
     total_asignados = asset_repo.count_asignados()

@@ -284,7 +284,7 @@
         {{ campo_texto(form.numero_serie, t('assets.modal_field_serial'), placeholder="C02XG78JMD6T") }}
         {{ campo_select(form.ubicacion, t('assets.modal_field_location')) }}
       </div>
-      {{ campo_asignacion(form.id_personal, t('assets.modal_field_assignment')) }}
+      {{ campo_asignacion(form.id_persona, t('assets.modal_field_assignment')) }}
     </div>
     <div class="modal__footer">
       <button type="button" class="btn btn-pill" id="cancelNuevoActivoBtn">{{ t('forms.cancel') }}</button>
@@ -327,7 +327,7 @@
       </button>
     </div>
     <div class="modal__body">
-      {{ campo_asignacion(form_editar.id_personal, t('assets.modal_field_assignment')) }}
+      {{ campo_asignacion(form_editar.id_persona, t('assets.modal_field_assignment')) }}
       {{ campo_select(form_editar.ubicacion, t('assets.modal_field_location')) }}
       <div class="field-grid">
         {{ campo_texto(form_editar.cpu, t('assets.modal_field_cpu')) }}
@@ -377,7 +377,7 @@
 </div>
 
 <script type="application/json" id="assetsData">{{ assets_json | tojson }}</script>
-<script type="application/json" id="assetsPersonalData">{{ personal_json | tojson }}</script>
+<script type="application/json" id="assetsPersonasData">{{ personas_json | tojson }}</script>
 <script type="application/json" id="assetsI18n">
   {{
     {

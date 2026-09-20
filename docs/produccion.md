@@ -94,26 +94,26 @@ app todavía.
 ## 4. Crear las tablas (primera vez)
 
 Con la base vacía y la conexión verificada, alcanza con levantar la app una
-vez — `create_all()` corre en `create_app()` y crea `personal`, `assets` y
-`usuarios` solo. No hace falta ningún comando extra ni ningún script de
+vez — `create_all()` corre en `create_app()` y crea `personas`, `assets` y
+`admins` solo. No hace falta ningún comando extra ni ningún script de
 "init db".
 
 ## 5. Crear la primera cuenta de acceso (IT)
 
-Sin esto nadie puede entrar: `/`, `/activos` y `/personal` están protegidas
-con `@login_required` y no hay ninguna cuenta `Usuario` todavía.
+Sin esto nadie puede entrar: `/`, `/activos` y `/personas` están protegidas
+con `@login_required` y no hay ninguna cuenta `Admin` todavía.
 
 ```python
-# crear_usuario.py — corré una vez apuntando a producción, después borralo
+# crear_admin.py — corré una vez apuntando a producción, después borralo
 # (o al menos no lo dejes con la clave en texto plano en el repo/servidor)
 from app import create_app
 from app.database import SessionLocal, generar_uuid
-from app.models.usuario import Usuario
+from app.models.admin import Admin
 
 app = create_app()
 with app.app_context():
     db = SessionLocal()
-    cuenta = Usuario(id=generar_uuid(), username="tu.usuario")
+    cuenta = Admin(id=generar_uuid(), username="tu.usuario")
     cuenta.set_password("una-clave-segura-de-produccion")
     db.add(cuenta)
     db.commit()
@@ -121,8 +121,8 @@ with app.app_context():
 ```
 
 Si querés que el sidebar muestre tu nombre real en vez del username, primero
-necesitás una fila en `Personal` y le pasás su `id` como `id_personal=...`
-al crear el `Usuario`.
+necesitás una fila en `Persona` y le pasás su `id` como `id_persona=...`
+al crear el `Admin`.
 
 ## 6. Cosas que conviene resolver antes de ir a producción (no están hechas)
 
@@ -156,6 +156,6 @@ no pasos ya cubiertos por el código actual:
 - [ ] Usuario de MySQL para la app con privilegios mínimos (sin DDL)
 - [ ] Conexión verificada (paso 3)
 - [ ] App levantada una vez → tablas creadas
-- [ ] Primera cuenta `Usuario` creada y probada en `/login`
+- [ ] Primera cuenta `Admin` creada y probada en `/login`
 - [ ] Datos de prueba (smoke tests) **no** están en esta base — arranca vacía
       salvo la cuenta de IT

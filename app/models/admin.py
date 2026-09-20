@@ -1,9 +1,9 @@
-"""Modelo de Usuario: cuenta de acceso a la aplicación.
+"""Modelo de Admin: cuenta de acceso a la aplicación.
 
-Separado de Personal a propósito: no todo el personal de la empresa
+Separado de Persona a propósito: no todo el personal de la empresa
 necesita poder entrar al sistema (hoy solo IT), y una cuenta de acceso
 no siempre corresponde a alguien del directorio (p. ej. una cuenta de
-servicio). Por eso el vínculo con Personal es opcional.
+servicio). Por eso el vínculo con Persona es opcional.
 
 Hereda de UserMixin (Flask-Login) para exponer is_authenticated,
 is_active, is_anonymous y get_id() sin tener que reimplementarlos.
@@ -18,16 +18,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.database import Base, generar_uuid
 
 
-class Usuario(Base, UserMixin):
-    __tablename__ = "usuarios"
+class Admin(Base, UserMixin):
+    __tablename__ = "admins"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     username: Mapped[str] = mapped_column(String(45), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    id_personal: Mapped[str | None] = mapped_column(String(36), ForeignKey("personal.id"))
-    personal: Mapped["Personal"] = relationship()
+    id_persona: Mapped[str | None] = mapped_column(String(36), ForeignKey("personas.id"))
+    persona: Mapped["Persona"] = relationship()
 
     def set_password(self, password_en_claro: str) -> None:
         self.password_hash = generate_password_hash(password_en_claro)
@@ -36,4 +36,4 @@ class Usuario(Base, UserMixin):
         return check_password_hash(self.password_hash, password_en_claro)
 
     def __repr__(self) -> str:
-        return f"<Usuario {self.username}>"
+        return f"<Admin {self.username}>"

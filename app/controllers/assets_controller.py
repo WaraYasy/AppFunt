@@ -6,9 +6,9 @@ from app.database import SessionLocal
 from app.forms import EditarActivoForm, NuevoActivoForm
 from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset, AssetCategoria
-from app.models.personal import PersonalUbicacion
+from app.models.persona import PersonaUbicacion
 from app.repositories.asset_repository import AssetRepository
-from app.repositories.personal_repository import PersonalRepository
+from app.repositories.persona_repository import PersonaRepository
 from app.template_helpers import asset_icon, person_initials
 from app.validacion import ValidationError
 
@@ -23,7 +23,7 @@ CATEGORIAS_FILTRO = [
     (AssetCategoria.PERIFERICO, "assets.filter_periferico"),
 ]
 
-SIN_ASIGNAR = ""  # valor del <option>/campo id_personal que representa "sin custodio"
+SIN_ASIGNAR = ""  # valor del <option>/campo id_persona que representa "sin custodio"
 
 
 @assets_bp.before_request
@@ -69,7 +69,7 @@ def _serializar_asset(asset: Asset) -> dict:
         "nombre": asset.nombre,
         "categoria": asset.categoria,
         "icono": asset_icon(asset),
-        "asignado": bool(asset.id_personal),
+        "asignado": bool(asset.id_persona),
         "estado": asset.estado,
         "numeroSerie": asset.numero_serie,
         "cpu": asset.cpu,
@@ -77,7 +77,7 @@ def _serializar_asset(asset: Asset) -> dict:
         "almacenamiento": asset.almacenamiento,
         "sistemaOperativo": asset.sistema_operativo,
         "ubicacion": asset.ubicacion,
-        "idPersonal": asset.id_personal or "",
+        "idPersona": asset.id_persona or "",
         "custodio": (
             {
                 "nombre": f"{custodio.nombre} {custodio.apellido}",
@@ -91,31 +91,31 @@ def _serializar_asset(asset: Asset) -> dict:
     }
 
 
-def _choices_id_personal(personal_repo: PersonalRepository) -> list[tuple[str, str]]:
+def _choices_id_persona(persona_repo: PersonaRepository) -> list[tuple[str, str]]:
     """Choices de custodio, comunes al form de alta y al de edición."""
     locale = _locale()
     return [(SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))] + [
-        (persona.id, f"{persona.nombre} {persona.apellido}") for persona in personal_repo.get_all()
+        (persona.id, f"{persona.nombre} {persona.apellido}") for persona in persona_repo.get_all()
     ]
 
 
 def _choices_ubicacion() -> list[tuple[str, str]]:
-    """Ubicación cerrada: mismas sedes que Personal (ver PersonalUbicacion),
+    """Ubicación cerrada: mismas sedes que Persona (ver PersonaUbicacion),
     para que la ubicación de un activo siempre sea una sede real y
     consistente con las de la gente, no texto libre inventado."""
     vacio = translate("assets.field_not_specified", _locale())
-    return [("", vacio)] + [(sede, sede) for sede in PersonalUbicacion.OPCIONES]
+    return [("", vacio)] + [(sede, sede) for sede in PersonaUbicacion.OPCIONES]
 
 
-def _preparar_form_nuevo(form: NuevoActivoForm, personal_repo: PersonalRepository) -> None:
+def _preparar_form_nuevo(form: NuevoActivoForm, persona_repo: PersonaRepository) -> None:
     form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
     form.ubicacion.choices = _choices_ubicacion()
-    form.id_personal.choices = _choices_id_personal(personal_repo)
+    form.id_persona.choices = _choices_id_persona(persona_repo)
 
 
-def _preparar_form_editar(form: EditarActivoForm, personal_repo: PersonalRepository) -> None:
+def _preparar_form_editar(form: EditarActivoForm, persona_repo: PersonaRepository) -> None:
     form.ubicacion.choices = _choices_ubicacion()
-    form.id_personal.choices = _choices_id_personal(personal_repo)
+    form.id_persona.choices = _choices_id_persona(persona_repo)
 
 
 def _contexto_index(
@@ -126,15 +126,15 @@ def _contexto_index(
 ) -> dict:
     db = SessionLocal()
     asset_repo = AssetRepository(db)
-    personal_repo = PersonalRepository(db)
+    persona_repo = PersonaRepository(db)
 
     if form_nuevo is None:
         form_nuevo = NuevoActivoForm()
-    _preparar_form_nuevo(form_nuevo, personal_repo)
+    _preparar_form_nuevo(form_nuevo, persona_repo)
 
     if form_editar is None:
         form_editar = EditarActivoForm(prefix="editar-")
-    _preparar_form_editar(form_editar, personal_repo)
+    _preparar_form_editar(form_editar, persona_repo)
 
     assets = asset_repo.get_all()
     total_assets = len(assets)
@@ -154,20 +154,20 @@ def _contexto_index(
         for categoria, label_key in CATEGORIAS_FILTRO
     ]
 
-    personal_json = [
+    personas_json = [
         {
             "id": persona.id,
             "nombre": f"{persona.nombre} {persona.apellido}",
             "iniciales": person_initials(persona),
             "departamento": persona.departamento,
         }
-        for persona in personal_repo.get_all()
+        for persona in persona_repo.get_all()
     ]
 
     return {
         "assets": assets,
         "assets_json": [_serializar_asset(asset) for asset in assets],
-        "personal_json": personal_json,
+        "personas_json": personas_json,
         "total_assets": total_assets,
         "total_disponibles": total_disponibles,
         "total_asignados": total_asignados,
@@ -189,10 +189,10 @@ def index():
 def crear():
     db = SessionLocal()
     asset_repo = AssetRepository(db)
-    personal_repo = PersonalRepository(db)
+    persona_repo = PersonaRepository(db)
 
     form = NuevoActivoForm()
-    _preparar_form_nuevo(form, personal_repo)
+    _preparar_form_nuevo(form, persona_repo)
 
     if form.validate_on_submit():
         if form.numero_serie.data and asset_repo.existe_numero_serie(form.numero_serie.data):
@@ -205,7 +205,7 @@ def crear():
                 categoria=form.categoria.data,
                 numero_serie=_limpio(form.numero_serie.data),
                 ubicacion=form.ubicacion.data or None,
-                id_personal=form.id_personal.data or None,
+                id_persona=form.id_persona.data or None,
             ),
         ):
             flash(translate("assets.flash_created", _locale()), "success")
@@ -220,14 +220,14 @@ def crear():
 def editar(id_asset):
     db = SessionLocal()
     asset_repo = AssetRepository(db)
-    personal_repo = PersonalRepository(db)
+    persona_repo = PersonaRepository(db)
 
     asset = asset_repo.get_by_id(id_asset)
     if asset is None:
         abort(404)
 
     form = EditarActivoForm(prefix="editar-")
-    _preparar_form_editar(form, personal_repo)
+    _preparar_form_editar(form, persona_repo)
 
     if form.validate_on_submit():
         # nombre/categoría/número de serie no se pueden editar (ver forms.py),
@@ -238,7 +238,7 @@ def editar(id_asset):
             lambda: asset_repo.update(
                 asset,
                 ubicacion=form.ubicacion.data or None,
-                id_personal=form.id_personal.data or None,
+                id_persona=form.id_persona.data or None,
                 cpu=_limpio(form.cpu.data),
                 ram=_limpio(form.ram.data),
                 almacenamiento=_limpio(form.almacenamiento.data),

@@ -441,7 +441,7 @@ button {
   }
 }
 
-/* Tabla maestra de datos con fila clicable (usada en Activos y Personal) */
+/* Tabla maestra de datos con fila clicable (usada en Activos y Personas) */
 .data-table-card {
   overflow: hidden;
 }

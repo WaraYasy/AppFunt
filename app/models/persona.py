@@ -1,9 +1,9 @@
-"""Modelo de Personal: directorio de empleados de la empresa.
+"""Modelo de Persona: directorio de empleados de la empresa.
 
-Personal es una entidad de negocio (quién es cada empleado, en qué
+Persona es una entidad de negocio (quién es cada empleado, en qué
 departamento está, de qué activos es custodio) separada a propósito de
-Usuario (la cuenta con la que se inicia sesión en la aplicación) — ver
-app/models/usuario.py.
+Admin (la cuenta con la que se inicia sesión en la aplicación) — ver
+app/models/admin.py.
 """
 from datetime import datetime
 
@@ -14,7 +14,7 @@ from app.database import Base, generar_uuid
 from app.validacion import validar_email, validar_longitud, validar_no_vacio, validar_opciones
 
 
-class PersonalModalidad:
+class PersonaModalidad:
     """Modalidad de trabajo del colaborador."""
 
     REMOTO = "Remoto"
@@ -23,7 +23,7 @@ class PersonalModalidad:
     OPCIONES = [REMOTO, PRESENCIAL]
 
 
-class PersonalDepartamento:
+class PersonaDepartamento:
     """Departamentos válidos — lista cerrada."""
 
     INGENIERIA = "Ingeniería"
@@ -37,7 +37,7 @@ class PersonalDepartamento:
     OPCIONES = [INGENIERIA, DISENO, PRODUCTO, VENTAS, RRHH, ADMINISTRACION, IT]
 
 
-class PersonalUbicacion:
+class PersonaUbicacion:
     """Sedes válidas — lista cerrada."""
 
     CENTRAL = "Central"
@@ -46,8 +46,8 @@ class PersonalUbicacion:
     OPCIONES = [CENTRAL, SUCURSAL_1]
 
 
-class Personal(Base):
-    __tablename__ = "personal"
+class Persona(Base):
+    __tablename__ = "personas"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     nombre: Mapped[str] = mapped_column(String(45))
@@ -78,21 +78,21 @@ class Personal(Base):
     @validates("modalidad")
     def _validar_modalidad(self, key, value):
         value = validar_longitud(self, key, value)
-        return validar_opciones(key, value, PersonalModalidad.OPCIONES)
+        return validar_opciones(key, value, PersonaModalidad.OPCIONES)
 
     @validates("departamento")
     def _validar_departamento(self, key, value):
         value = validar_longitud(self, key, value)
-        return validar_opciones(key, value, PersonalDepartamento.OPCIONES)
+        return validar_opciones(key, value, PersonaDepartamento.OPCIONES)
 
     @validates("ubicacion")
     def _validar_ubicacion(self, key, value):
         value = validar_longitud(self, key, value)
-        return validar_opciones(key, value, PersonalUbicacion.OPCIONES)
+        return validar_opciones(key, value, PersonaUbicacion.OPCIONES)
 
     @validates("codigo")
     def _validar_opcionales(self, key, value):
         return validar_longitud(self, key, value)
 
     def __repr__(self) -> str:
-        return f"<Personal {self.nombre} {self.apellido}>"
+        return f"<Persona {self.nombre} {self.apellido}>"
