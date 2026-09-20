@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, generar_uuid
 
 
 class AssetCategoria:
@@ -12,26 +12,33 @@ class AssetCategoria:
 
     PORTATIL = "Portátil"
     SOBREMESA = "Sobremesa"
-    MONITOR = "Monitor"
-    TECLADO = "Teclado"
-    RATON = "Ratón"
+    SERVIDOR = "Servidor"
+    REDES = "Redes"
     MOVIL = "Móvil"
-    IMPRESORA = "Impresora"
+    PERIFERICO = "Periférico"
     OTRO = "Otro"
 
-    OPCIONES = [PORTATIL, SOBREMESA, MONITOR, TECLADO, RATON, MOVIL, IMPRESORA, OTRO]
+    OPCIONES = [PORTATIL, SOBREMESA, SERVIDOR, REDES, MOVIL, PERIFERICO, OTRO]
 
 
 class Asset(Base):
     __tablename__ = "assets"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     codigo: Mapped[str | None] = mapped_column(String(6), unique=True, index=True)
     id_user: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"))
     nombre: Mapped[str] = mapped_column(String(100))
     categoria: Mapped[str] = mapped_column(String(20), default=AssetCategoria.OTRO)
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     estado: Mapped[str] = mapped_column(String(20), default="Disponible")
+
+    # Ficha técnica ampliada (opcional: no todos los activos la tienen completa)
+    numero_serie: Mapped[str | None] = mapped_column(String(60), unique=True, index=True)
+    cpu: Mapped[str | None] = mapped_column(String(120))
+    ram: Mapped[str | None] = mapped_column(String(60))
+    almacenamiento: Mapped[str | None] = mapped_column(String(120))
+    sistema_operativo: Mapped[str | None] = mapped_column(String(80))
+    garantia: Mapped[str | None] = mapped_column(String(120))
 
     usuario: Mapped["Users"] = relationship(back_populates="assets")
 
