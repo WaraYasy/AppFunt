@@ -1,7 +1,8 @@
 /*
- * Comportamiento de la vista Activos: filtrado por categoría/búsqueda
- * y panel lateral (drawer) con la ficha del activo seleccionado.
- * Se carga solo en assets.html (ver base.html: block extra_js).
+ * Comportamiento de la vista Activos: filtrado por categoría/búsqueda,
+ * panel lateral (drawer) con la ficha del activo, y los modales de
+ * alta/edición/eliminación. Se carga solo en assets.html (ver base.html:
+ * block extra_js).
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,6 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterPills = document.querySelectorAll("#filterPills .filter-pill");
   const searchInput = document.getElementById("assetsSearch");
 
+  // --- Helper genérico para abrir/cerrar un par modal+backdrop ---
+  function wireModal(modalId, backdropId, extraCloseIds) {
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById(backdropId);
+    if (!modal || !backdrop) return { open: () => {}, close: () => {} };
+
+    function open() {
+      modal.classList.add("is-open");
+      backdrop.classList.add("is-open");
+    }
+
+    function close() {
+      modal.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+    }
+
+    backdrop.addEventListener("click", close);
+    (extraCloseIds || []).forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.addEventListener("click", close);
+    });
+
+    return { open, close };
+  }
+
+  // --- Drawer de detalle ---
   const drawer = document.getElementById("assetDrawer");
   const drawerBackdrop = document.getElementById("drawerBackdrop");
   const drawerClose = document.getElementById("drawerClose");
@@ -38,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentCategory = "all";
   let searchQuery = "";
+  let currentAssetId = null;
 
   function fillSpec(el, value) {
     el.textContent = value || i18n.drawerNoData;
@@ -83,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openDrawer(assetId) {
     const asset = assetsById[assetId];
     if (!asset) return;
+    currentAssetId = assetId;
 
     rows.forEach((row) => row.classList.toggle("is-selected", row.dataset.assetId === assetId));
 
@@ -129,34 +158,87 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerClose.addEventListener("click", closeDrawer);
   drawerBackdrop.addEventListener("click", closeDrawer);
 
-  // Modal "Nuevo Activo"
-  const nuevoActivoModal = document.getElementById("nuevoActivoModal");
-  const nuevoActivoBackdrop = document.getElementById("nuevoActivoBackdrop");
+  // --- Modal "Nuevo Activo" ---
+  const nuevoActivoModal = wireModal("nuevoActivoModal", "nuevoActivoBackdrop", [
+    "closeNuevoActivoBtn",
+    "cancelNuevoActivoBtn",
+  ]);
   const openNuevoActivoBtn = document.getElementById("openNuevoActivoBtn");
-  const closeNuevoActivoBtn = document.getElementById("closeNuevoActivoBtn");
-  const cancelNuevoActivoBtn = document.getElementById("cancelNuevoActivoBtn");
+  if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", nuevoActivoModal.open);
 
-  function openNuevoActivoModal() {
-    if (!nuevoActivoModal) return;
-    nuevoActivoModal.classList.add("is-open");
-    nuevoActivoBackdrop.classList.add("is-open");
+  // --- Modal "Editar Activo" ---
+  const editarActivoModal = wireModal("editarActivoModal", "editarActivoBackdrop", [
+    "closeEditarActivoBtn",
+    "cancelEditarActivoBtn",
+  ]);
+  const editarActivoForm = document.getElementById("editarActivoForm");
+  const editarActivoContexto = document.getElementById("editarActivoContexto");
+  const editarIdPersonalSelect = document.getElementById("editar-id_personal");
+
+  function setFieldValue(id, value) {
+    const field = document.getElementById(id);
+    if (field) field.value = value || "";
   }
 
-  function closeNuevoActivoModal() {
-    if (!nuevoActivoModal) return;
-    nuevoActivoModal.classList.remove("is-open");
-    nuevoActivoBackdrop.classList.remove("is-open");
+  function abrirEdicion(assetId) {
+    const asset = assetsById[assetId];
+    if (!asset || !editarActivoForm) return;
+
+    editarActivoForm.action = `/activos/${asset.id}/editar`;
+
+    if (editarActivoContexto) {
+      const partes = [asset.nombre, asset.categoria, asset.numeroSerie].filter(Boolean);
+      editarActivoContexto.textContent = partes.join(" · ");
+    }
+
+    setFieldValue("editar-ubicacion", asset.ubicacion);
+    setFieldValue("editar-cpu", asset.cpu);
+    setFieldValue("editar-ram", asset.ram);
+    setFieldValue("editar-almacenamiento", asset.almacenamiento);
+    setFieldValue("editar-sistema_operativo", asset.sistemaOperativo);
+
+    // El select de custodio se arma en el servidor con <option> por cada
+    // persona; acá solo elegimos la que corresponde (o "" = sin asignar).
+    if (editarIdPersonalSelect) {
+      editarIdPersonalSelect.value = asset.idPersonal || "";
+    }
+
+    editarActivoModal.open();
   }
 
-  if (openNuevoActivoBtn) openNuevoActivoBtn.addEventListener("click", openNuevoActivoModal);
-  if (closeNuevoActivoBtn) closeNuevoActivoBtn.addEventListener("click", closeNuevoActivoModal);
-  if (cancelNuevoActivoBtn) cancelNuevoActivoBtn.addEventListener("click", closeNuevoActivoModal);
-  if (nuevoActivoBackdrop) nuevoActivoBackdrop.addEventListener("click", closeNuevoActivoModal);
+  // --- Modal "Eliminar Activo" ---
+  const eliminarActivoModal = wireModal("eliminarActivoModal", "eliminarActivoBackdrop", [
+    "closeEliminarActivoBtn",
+    "cancelEliminarActivoBtn",
+  ]);
+  const eliminarActivoForm = document.getElementById("eliminarActivoForm");
+  const eliminarActivoBody = document.getElementById("eliminarActivoBody");
+
+  function abrirEliminacion(assetId) {
+    const asset = assetsById[assetId];
+    if (!asset || !eliminarActivoForm) return;
+
+    eliminarActivoForm.action = `/activos/${asset.id}/eliminar`;
+    if (eliminarActivoBody) {
+      eliminarActivoBody.textContent = i18n.deleteConfirmBody.replace("{nombre}", asset.nombre);
+    }
+
+    eliminarActivoModal.open();
+  }
+
+  const drawerEditBtn = document.getElementById("drawerEditBtn");
+  const drawerDeleteBtn = document.getElementById("drawerDeleteBtn");
+  if (drawerEditBtn) drawerEditBtn.addEventListener("click", () => currentAssetId && abrirEdicion(currentAssetId));
+  if (drawerDeleteBtn) {
+    drawerDeleteBtn.addEventListener("click", () => currentAssetId && abrirEliminacion(currentAssetId));
+  }
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
     closeDrawer();
-    closeNuevoActivoModal();
+    nuevoActivoModal.close();
+    editarActivoModal.close();
+    eliminarActivoModal.close();
   });
 
   function applyFilters() {

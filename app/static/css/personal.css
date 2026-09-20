@@ -94,10 +94,40 @@
   gap: var(--space-2);
 }
 
+.asset-chip__header-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
 .asset-chip__name {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-on-surface);
+}
+
+.asset-chip__remove {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-surface-subtle);
+  flex-shrink: 0;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.asset-chip__remove:hover {
+  color: var(--color-error);
+  background-color: var(--color-error-surface);
+}
+
+.asset-chip__remove .material-symbols-outlined {
+  font-size: 17px;
 }
 
 .asset-chip__meta {

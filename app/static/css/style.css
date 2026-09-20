@@ -118,6 +118,18 @@ button {
   color: var(--color-on-surface);
 }
 
+.btn-danger {
+  height: 2.5rem;
+  padding: 0 var(--space-4);
+  background-color: transparent;
+  border-color: var(--color-error-border);
+  color: var(--color-error);
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error-surface);
+}
+
 /* Badges */
 .badge {
   display: inline-flex;
@@ -787,6 +799,52 @@ button {
   font-size: var(--text-sm);
   text-align: center;
   padding: var(--space-2) 0;
+}
+
+/* Banner de mensajes flash (confirmación tras crear/editar/eliminar) */
+.flash-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface-card);
+  color: var(--color-on-surface);
+  font-size: var(--text-sm);
+}
+
+.flash .material-symbols-outlined {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.flash--success {
+  border-color: var(--color-success-border);
+  background-color: var(--color-success-surface);
+  color: var(--color-accent-green);
+}
+
+.flash--warning {
+  border-color: var(--color-warning-border);
+  background-color: var(--color-warning-surface);
+  color: var(--color-warning);
+}
+
+.flash--error {
+  border-color: var(--color-error-border);
+  background-color: var(--color-error-surface);
+  color: var(--color-error);
+}
+
+.flash__text {
+  color: var(--color-on-surface);
 }
 
 /* Modal genérico (usado por los formularios de alta: Nuevo Activo, Nuevo Colaborador) */

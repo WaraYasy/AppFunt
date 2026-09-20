@@ -29,6 +29,20 @@
         {% include "partials/topbar.html" %}
 
         <main class="app-content">
+          {% with mensajes = get_flashed_messages(with_categories=True) %}
+          {% if mensajes %}
+          <div class="flash-list">
+            {% for categoria, mensaje in mensajes %}
+            <div class="flash flash--{{ categoria }}">
+              <span class="material-symbols-outlined">
+                {{ "check_circle" if categoria == "success" else ("warning" if categoria == "warning" else "error") }}
+              </span>
+              <span class="flash__text">{{ mensaje }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
           {% block content %}{% endblock %}
         </main>
       </div>

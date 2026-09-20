@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros/forms.html" import campo_texto, campo_chips with context %}
+{% from "macros/forms.html" import campo_texto, campo_select, campo_chips with context %}
 
 {% block title %}{{ t('personal.title') }} · {{ t('brand.name') }}{% endblock %}
 
@@ -251,13 +251,13 @@
   </div>
 
   <div class="drawer__footer">
-    <button type="button" class="btn btn-primary">
-      <span class="material-symbols-outlined">tune</span>
-      <span>{{ t('personal.drawer_manage') }}</span>
-    </button>
-    <button type="button" class="btn btn-pill">
+    <button type="button" class="btn btn-primary" id="drawerEditBtn">
       <span class="material-symbols-outlined">edit</span>
-      <span>{{ t('personal.drawer_edit') }}</span>
+      <span>{{ t('forms.edit') }}</span>
+    </button>
+    <button type="button" class="btn btn-danger" id="drawerDeleteBtn">
+      <span class="material-symbols-outlined">delete</span>
+      <span>{{ t('forms.delete') }}</span>
     </button>
   </div>
 </aside>
@@ -294,9 +294,9 @@
       {{ campo_texto(form.email, t('personal.modal_field_email'), placeholder="elena.salazar@empresa.com") }}
       <div class="field-grid">
         {{ campo_texto(form.rol, t('personal.modal_field_role'), placeholder="Senior Product Designer") }}
-        {{ campo_texto(form.departamento, t('personal.modal_field_department'), placeholder="Diseño UX/UI") }}
+        {{ campo_select(form.departamento, t('personal.modal_field_department')) }}
       </div>
-      {{ campo_texto(form.ubicacion, t('personal.modal_field_location'), placeholder="Presencial · Sede Central") }}
+      {{ campo_select(form.ubicacion, t('personal.modal_field_location')) }}
       {{ campo_chips(form.modalidad, t('personal.modal_field_modality')) }}
     </div>
     <div class="modal__footer">
@@ -304,6 +304,119 @@
       <button type="submit" class="btn btn-primary">
         <span class="material-symbols-outlined">person_add</span>
         <span>{{ t('personal.modal_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-backdrop {{ 'is-open' if id_editar_abierto else '' }}" id="editarColaboradorBackdrop"></div>
+<div
+  class="modal {{ 'is-open' if id_editar_abierto else '' }}"
+  id="editarColaboradorModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="editarColaboradorTitulo"
+>
+  <form
+    method="post"
+    action="{{ url_for('personal.editar', id_persona=id_editar_abierto) if id_editar_abierto else '#' }}"
+    id="editarColaboradorForm"
+    novalidate
+  >
+    {{ form_editar.hidden_tag() }}
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon">
+          <span class="material-symbols-outlined">edit</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="editarColaboradorTitulo">{{ t('personal.modal_edit_title') }}</h2>
+          <p class="modal__subtitle" id="editarColaboradorContexto"></p>
+          <p class="modal__subtitle">{{ t('personal.modal_edit_subtitle') }}</p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeEditarColaboradorBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__body">
+      {{ campo_texto(form_editar.email, t('personal.modal_field_email')) }}
+      {{ campo_select(form_editar.departamento, t('personal.modal_field_department')) }}
+      {{ campo_select(form_editar.ubicacion, t('personal.modal_field_location')) }}
+      {{ campo_chips(form_editar.modalidad, t('personal.modal_field_modality')) }}
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelEditarColaboradorBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-primary">
+        <span class="material-symbols-outlined">save</span>
+        <span>{{ t('personal.modal_edit_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-backdrop" id="eliminarColaboradorBackdrop"></div>
+<div
+  class="modal"
+  id="eliminarColaboradorModal"
+  role="alertdialog"
+  aria-modal="true"
+  aria-labelledby="eliminarColaboradorTitulo"
+>
+  <form method="post" action="#" id="eliminarColaboradorForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon" style="color: var(--color-error);">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="eliminarColaboradorTitulo">{{ t('personal.delete_confirm_title') }}</h2>
+          <p class="modal__subtitle" id="eliminarColaboradorBody"></p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="drawer__close"
+        id="closeEliminarColaboradorBtn"
+        aria-label="{{ t('forms.cancel') }}"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelEliminarColaboradorBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-danger">
+        <span class="material-symbols-outlined">delete</span>
+        <span>{{ t('personal.delete_confirm_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-backdrop" id="quitarActivoBackdrop"></div>
+<div class="modal" id="quitarActivoModal" role="alertdialog" aria-modal="true" aria-labelledby="quitarActivoTitulo">
+  <form method="post" action="#" id="quitarActivoForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon" style="color: var(--color-warning);">
+          <span class="material-symbols-outlined">link_off</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="quitarActivoTitulo">{{ t('personal.unassign_confirm_title') }}</h2>
+          <p class="modal__subtitle" id="quitarActivoBody"></p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeQuitarActivoBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelQuitarActivoBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-danger">
+        <span class="material-symbols-outlined">link_off</span>
+        <span>{{ t('personal.unassign_confirm_submit') }}</span>
       </button>
     </div>
   </form>
@@ -319,6 +432,10 @@
       "noAssets": t('personal.drawer_no_assets'),
       "assetSingular": t('personal.assets_singular'),
       "assetPlural": t('personal.assets_plural'),
+      "deleteConfirmBody": t('personal.delete_confirm_body'),
+      "deleteConfirmBodyWithAssets": t('personal.delete_confirm_body_with_assets'),
+      "unassignConfirmBody": t('personal.unassign_confirm_body'),
+      "removeAssetLabel": t('personal.remove_asset_label'),
     } | tojson
   }}
 </script>

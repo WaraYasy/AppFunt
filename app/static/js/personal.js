@@ -1,7 +1,8 @@
 /*
  * Comportamiento de la vista Personal: filtrado por modalidad/estado de
- * asignación/búsqueda, y panel lateral (drawer) con la ficha de la persona
- * seleccionada. Se carga solo en personal.html (ver base.html: block extra_js).
+ * asignación/búsqueda, panel lateral (drawer) con la ficha de la persona,
+ * y los modales de alta/edición/eliminación. Se carga solo en
+ * personal.html (ver base.html: block extra_js).
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,6 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterPills = document.querySelectorAll("#filterPills .filter-pill");
   const searchInput = document.getElementById("personalSearch");
 
+  // --- Helper genérico para abrir/cerrar un par modal+backdrop ---
+  function wireModal(modalId, backdropId, extraCloseIds) {
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById(backdropId);
+    if (!modal || !backdrop) return { open: () => {}, close: () => {} };
+
+    function open() {
+      modal.classList.add("is-open");
+      backdrop.classList.add("is-open");
+    }
+
+    function close() {
+      modal.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+    }
+
+    backdrop.addEventListener("click", close);
+    (extraCloseIds || []).forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.addEventListener("click", close);
+    });
+
+    return { open, close };
+  }
+
+  // --- Drawer de detalle ---
   const drawer = document.getElementById("personDrawer");
   const drawerBackdrop = document.getElementById("drawerBackdrop");
   const drawerClose = document.getElementById("drawerClose");
@@ -38,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentFilter = "all";
   let searchQuery = "";
+  let currentPersonaId = null;
 
   function el(tag, className, text) {
     const node = document.createElement(tag);
@@ -50,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     target.textContent = value || i18n.noData;
   }
 
-  function renderAssetList(activos) {
+  function renderAssetList(activos, persona) {
     drawerAssetList.replaceChildren();
 
     if (!activos || activos.length === 0) {
@@ -67,8 +95,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const body = el("div", "asset-chip__body");
       const header = el("div", "asset-chip__header");
-      header.appendChild(el("h4", "asset-chip__name", asset.nombre));
-      header.appendChild(el("span", "badge", asset.categoria));
+
+      const headerMain = el("div", "asset-chip__header-main");
+      headerMain.appendChild(el("h4", "asset-chip__name", asset.nombre));
+      headerMain.appendChild(el("span", "badge", asset.categoria));
+      header.appendChild(headerMain);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "asset-chip__remove";
+      removeBtn.setAttribute("aria-label", i18n.removeAssetLabel);
+      removeBtn.appendChild(el("span", "material-symbols-outlined", "link_off"));
+      removeBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        abrirQuitarActivo(persona, asset);
+      });
+      header.appendChild(removeBtn);
+
       body.appendChild(header);
 
       const meta = asset.numeroSerie || asset.codigo;
@@ -82,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openDrawer(personaId) {
     const persona = personaById[personaId];
     if (!persona) return;
+    currentPersonaId = personaId;
 
     rows.forEach((row) => row.classList.toggle("is-selected", row.dataset.personaId === personaId));
 
@@ -102,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const count = persona.activos.length;
     drawerAssetCounter.textContent = count === 1 ? `1 ${i18n.assetSingular}` : `${count} ${i18n.assetPlural}`;
-    renderAssetList(persona.activos);
+    renderAssetList(persona.activos, persona);
 
     drawer.classList.add("is-open");
     drawer.setAttribute("aria-hidden", "false");
@@ -130,34 +174,101 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerClose.addEventListener("click", closeDrawer);
   drawerBackdrop.addEventListener("click", closeDrawer);
 
-  // Modal "Nuevo Colaborador"
-  const nuevoColaboradorModal = document.getElementById("nuevoColaboradorModal");
-  const nuevoColaboradorBackdrop = document.getElementById("nuevoColaboradorBackdrop");
+  // --- Modal "Nuevo Colaborador" ---
+  const nuevoColaboradorModal = wireModal("nuevoColaboradorModal", "nuevoColaboradorBackdrop", [
+    "closeNuevoColaboradorBtn",
+    "cancelNuevoColaboradorBtn",
+  ]);
   const openNuevoColaboradorBtn = document.getElementById("openNuevoColaboradorBtn");
-  const closeNuevoColaboradorBtn = document.getElementById("closeNuevoColaboradorBtn");
-  const cancelNuevoColaboradorBtn = document.getElementById("cancelNuevoColaboradorBtn");
+  if (openNuevoColaboradorBtn) openNuevoColaboradorBtn.addEventListener("click", nuevoColaboradorModal.open);
 
-  function openNuevoColaboradorModal() {
-    if (!nuevoColaboradorModal) return;
-    nuevoColaboradorModal.classList.add("is-open");
-    nuevoColaboradorBackdrop.classList.add("is-open");
+  // --- Modal "Editar Colaborador" ---
+  const editarColaboradorModal = wireModal("editarColaboradorModal", "editarColaboradorBackdrop", [
+    "closeEditarColaboradorBtn",
+    "cancelEditarColaboradorBtn",
+  ]);
+  const editarColaboradorForm = document.getElementById("editarColaboradorForm");
+  const editarColaboradorContexto = document.getElementById("editarColaboradorContexto");
+
+  function setFieldValue(id, value) {
+    const field = document.getElementById(id);
+    if (field) field.value = value || "";
   }
 
-  function closeNuevoColaboradorModal() {
-    if (!nuevoColaboradorModal) return;
-    nuevoColaboradorModal.classList.remove("is-open");
-    nuevoColaboradorBackdrop.classList.remove("is-open");
+  function abrirEdicion(personaId) {
+    const persona = personaById[personaId];
+    if (!persona || !editarColaboradorForm) return;
+
+    editarColaboradorForm.action = `/personal/${persona.id}/editar`;
+    if (editarColaboradorContexto) editarColaboradorContexto.textContent = persona.nombre;
+
+    setFieldValue("editar-email", persona.email);
+    setFieldValue("editar-departamento", persona.departamento);
+    setFieldValue("editar-ubicacion", persona.ubicacion);
+
+    document.querySelectorAll('input[name="editar-modalidad"]').forEach((radio) => {
+      radio.checked = radio.value === (persona.modalidad || "");
+    });
+
+    editarColaboradorModal.open();
   }
 
-  if (openNuevoColaboradorBtn) openNuevoColaboradorBtn.addEventListener("click", openNuevoColaboradorModal);
-  if (closeNuevoColaboradorBtn) closeNuevoColaboradorBtn.addEventListener("click", closeNuevoColaboradorModal);
-  if (cancelNuevoColaboradorBtn) cancelNuevoColaboradorBtn.addEventListener("click", closeNuevoColaboradorModal);
-  if (nuevoColaboradorBackdrop) nuevoColaboradorBackdrop.addEventListener("click", closeNuevoColaboradorModal);
+  // --- Modal "Eliminar Colaborador" ---
+  const eliminarColaboradorModal = wireModal("eliminarColaboradorModal", "eliminarColaboradorBackdrop", [
+    "closeEliminarColaboradorBtn",
+    "cancelEliminarColaboradorBtn",
+  ]);
+  const eliminarColaboradorForm = document.getElementById("eliminarColaboradorForm");
+  const eliminarColaboradorBody = document.getElementById("eliminarColaboradorBody");
+
+  function abrirEliminacion(personaId) {
+    const persona = personaById[personaId];
+    if (!persona || !eliminarColaboradorForm) return;
+
+    eliminarColaboradorForm.action = `/personal/${persona.id}/eliminar`;
+    if (eliminarColaboradorBody) {
+      const plantilla = persona.tieneActivos ? i18n.deleteConfirmBodyWithAssets : i18n.deleteConfirmBody;
+      eliminarColaboradorBody.textContent = plantilla
+        .replace("{nombre}", persona.nombre)
+        .replace("{n}", String(persona.cantidadActivos));
+    }
+
+    eliminarColaboradorModal.open();
+  }
+
+  // --- Modal "Quitar activo asignado" ---
+  const quitarActivoModal = wireModal("quitarActivoModal", "quitarActivoBackdrop", [
+    "closeQuitarActivoBtn",
+    "cancelQuitarActivoBtn",
+  ]);
+  const quitarActivoForm = document.getElementById("quitarActivoForm");
+  const quitarActivoBody = document.getElementById("quitarActivoBody");
+
+  function abrirQuitarActivo(persona, asset) {
+    if (!persona || !asset || !quitarActivoForm) return;
+
+    quitarActivoForm.action = `/personal/${persona.id}/activos/${asset.id}/quitar`;
+    if (quitarActivoBody) {
+      quitarActivoBody.textContent = i18n.unassignConfirmBody.replace("{nombre}", asset.nombre);
+    }
+
+    quitarActivoModal.open();
+  }
+
+  const drawerEditBtn = document.getElementById("drawerEditBtn");
+  const drawerDeleteBtn = document.getElementById("drawerDeleteBtn");
+  if (drawerEditBtn) drawerEditBtn.addEventListener("click", () => currentPersonaId && abrirEdicion(currentPersonaId));
+  if (drawerDeleteBtn) {
+    drawerDeleteBtn.addEventListener("click", () => currentPersonaId && abrirEliminacion(currentPersonaId));
+  }
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
     closeDrawer();
-    closeNuevoColaboradorModal();
+    nuevoColaboradorModal.close();
+    editarColaboradorModal.close();
+    eliminarColaboradorModal.close();
+    quitarActivoModal.close();
   });
 
   function applyFilters() {

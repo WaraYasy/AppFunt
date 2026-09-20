@@ -245,13 +245,13 @@
   </div>
 
   <div class="drawer__footer">
-    <button type="button" class="btn btn-primary">
-      <span class="material-symbols-outlined">swap_horiz</span>
-      <span>{{ t('assets.drawer_reassign') }}</span>
-    </button>
-    <button type="button" class="btn btn-pill">
+    <button type="button" class="btn btn-primary" id="drawerEditBtn">
       <span class="material-symbols-outlined">edit</span>
-      <span>{{ t('assets.drawer_edit') }}</span>
+      <span>{{ t('forms.edit') }}</span>
+    </button>
+    <button type="button" class="btn btn-danger" id="drawerDeleteBtn">
+      <span class="material-symbols-outlined">delete</span>
+      <span>{{ t('forms.delete') }}</span>
     </button>
   </div>
 </aside>
@@ -299,6 +299,86 @@
   </form>
 </div>
 
+<div class="modal-backdrop {{ 'is-open' if id_editar_abierto else '' }}" id="editarActivoBackdrop"></div>
+<div
+  class="modal {{ 'is-open' if id_editar_abierto else '' }}"
+  id="editarActivoModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="editarActivoTitulo"
+>
+  <form
+    method="post"
+    action="{{ url_for('assets.editar', id_asset=id_editar_abierto) if id_editar_abierto else '#' }}"
+    id="editarActivoForm"
+    novalidate
+  >
+    {{ form_editar.hidden_tag() }}
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon">
+          <span class="material-symbols-outlined">edit</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="editarActivoTitulo">{{ t('assets.modal_edit_title') }}</h2>
+          <p class="modal__subtitle" id="editarActivoContexto"></p>
+          <p class="modal__subtitle">{{ t('assets.modal_edit_subtitle') }}</p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeEditarActivoBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__body">
+      {{ campo_select(form_editar.id_personal, t('assets.modal_field_assignment')) }}
+      {{ campo_texto(form_editar.ubicacion, t('assets.modal_field_location'), placeholder="Madrid Central - Planta 2") }}
+      <div class="field-grid">
+        {{ campo_texto(form_editar.cpu, t('assets.modal_field_cpu')) }}
+        {{ campo_texto(form_editar.ram, t('assets.modal_field_ram')) }}
+      </div>
+      <div class="field-grid">
+        {{ campo_texto(form_editar.almacenamiento, t('assets.modal_field_storage')) }}
+        {{ campo_texto(form_editar.sistema_operativo, t('assets.modal_field_os')) }}
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelEditarActivoBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-primary">
+        <span class="material-symbols-outlined">save</span>
+        <span>{{ t('assets.modal_edit_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-backdrop" id="eliminarActivoBackdrop"></div>
+<div class="modal" id="eliminarActivoModal" role="alertdialog" aria-modal="true" aria-labelledby="eliminarActivoTitulo">
+  <form method="post" action="#" id="eliminarActivoForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="modal__header">
+      <div class="modal__header-identity">
+        <div class="modal__header-icon" style="color: var(--color-error);">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <div>
+          <h2 class="modal__title" id="eliminarActivoTitulo">{{ t('assets.delete_confirm_title') }}</h2>
+          <p class="modal__subtitle" id="eliminarActivoBody"></p>
+        </div>
+      </div>
+      <button type="button" class="drawer__close" id="closeEliminarActivoBtn" aria-label="{{ t('forms.cancel') }}">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-pill" id="cancelEliminarActivoBtn">{{ t('forms.cancel') }}</button>
+      <button type="submit" class="btn btn-danger">
+        <span class="material-symbols-outlined">delete</span>
+        <span>{{ t('assets.delete_confirm_submit') }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
 <script type="application/json" id="assetsData">{{ assets_json | tojson }}</script>
 <script type="application/json" id="assetsI18n">
   {{
@@ -308,6 +388,7 @@
       "drawerLocation": t('assets.drawer_location'),
       "drawerNoCustodian": t('assets.drawer_no_custodian'),
       "drawerNoData": t('assets.drawer_no_data'),
+      "deleteConfirmBody": t('assets.delete_confirm_body'),
     } | tojson
   }}
 </script>
