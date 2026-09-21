@@ -1,4 +1,4 @@
-"""Repositorio de acceso a datos para assets (equipo tecnológico)."""
+"""Data access repository for assets (tech equipment)."""
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -11,7 +11,7 @@ class AssetRepository:
         self.db = db
 
     def create(self, **campos) -> Asset:
-        """Crea y persiste un Asset. `codigo` se autogenera si no viene en `campos`."""
+        """Create and save an Asset. Auto-generates `codigo` if it's not in `campos`."""
         campos.setdefault("codigo", generar_codigo(self.db, Asset.codigo, prefijo="NX-"))
         asset = Asset(**campos)
         self.db.add(asset)
@@ -20,7 +20,7 @@ class AssetRepository:
         return asset
 
     def update(self, asset: Asset, **campos) -> Asset:
-        """Actualiza únicamente los campos editables de un Asset ya existente."""
+        """Update only the editable fields of an existing Asset."""
         for campo, valor in campos.items():
             setattr(asset, campo, valor)
         self.db.commit()
@@ -28,7 +28,7 @@ class AssetRepository:
         return asset
 
     def delete(self, asset: Asset) -> None:
-        """Elimina un Asset. No tiene dependientes (nada referencia a un Asset)."""
+        """Delete an Asset. It has no dependents (nothing references an Asset)."""
         self.db.delete(asset)
         self.db.commit()
 
@@ -41,13 +41,18 @@ class AssetRepository:
         )
 
     def existe_numero_serie(self, numero_serie: str, excluir_id: str | None = None) -> bool:
+        """Check if `numero_serie` is already used by another asset.
+
+        `excluir_id` skips a given asset, so editing it doesn't flag its
+        own serial number as a duplicate.
+        """
         query = self.db.query(Asset.id).filter(Asset.numero_serie == numero_serie)
         if excluir_id:
             query = query.filter(Asset.id != excluir_id)
         return query.first() is not None
 
     def get_all(self) -> list[Asset]:
-        """Devuelve todos los assets, con su custodio cargado, del más reciente al más antiguo."""
+        """Return every asset, with its custodian loaded, newest first."""
         return (
             self.db.query(Asset)
             .options(joinedload(Asset.custodio))
@@ -62,7 +67,7 @@ class AssetRepository:
         return self.db.query(func.count(Asset.id)).scalar()
 
     def count_by_categoria(self) -> list[tuple[str, int]]:
-        """Devuelve el total de assets agrupado por categoría."""
+        """Return the asset count grouped by category."""
         return (
             self.db.query(Asset.categoria, func.count(Asset.id))
             .group_by(Asset.categoria)
@@ -84,7 +89,7 @@ class AssetRepository:
         )
 
     def get_recientes(self, limite: int = 4) -> list[Asset]:
-        """Devuelve los assets más recientemente creados, con su custodio cargado."""
+        """Return the most recently created assets, with their custodian loaded."""
         return (
             self.db.query(Asset)
             .options(joinedload(Asset.custodio))

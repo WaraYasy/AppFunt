@@ -1,4 +1,4 @@
-"""Controlador para la vista de Personas (directorio de colaboradores)."""
+"""Controller for the Personas view (collaborator directory)."""
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 from flask_login import login_required
 
@@ -19,7 +19,7 @@ personas_bp = Blueprint("personas", __name__)
 @personas_bp.before_request
 @login_required
 def _requerir_login():
-    pass
+    """Require a logged-in admin for every route in this blueprint."""
 
 
 def _locale() -> str:
@@ -27,20 +27,26 @@ def _locale() -> str:
 
 
 def _limpio(valor: str | None) -> str | None:
-    """Recorta espacios y convierte vacío -> None. `valor` puede llegar None
-    (campo Optional ausente del formdata), por eso no se puede asumir str."""
+    """Strip whitespace and turn an empty value into None.
+
+    `valor` can arrive as None (an Optional field missing from the form
+    data), so it can't be assumed to be a str.
+    """
     return (valor or "").strip() or None
 
 
 def _guardar(db, form, accion) -> bool:
-    """Ejecuta `accion` (una llamada al repositorio). Si el modelo rechaza
-    algún dato (@validates, ver app/validacion.py), engancha el error al
-    campo correspondiente del form en vez de dejar que reviente en un 500 —
-    es la red de seguridad para lo que WTForms no llegó a filtrar antes."""
+    """Run `accion` (a repository call) and catch model-level validation errors.
+
+    If the model rejects some data (@validates, see app/validacion.py),
+    attach the error to the matching form field instead of letting it
+    turn into a 500 — this is the safety net for what WTForms didn't
+    already filter out.
+    """
     try:
         accion()
     except ValidationError as exc:
-        db.rollback()  # descarta cualquier setattr() ya aplicado antes del que falló
+        db.rollback()  # discard any setattr() already applied before the one that failed
         campo_form = getattr(form, exc.campo, None)
         if campo_form is not None:
             campo_form.errors.append(exc.mensaje)
@@ -62,6 +68,10 @@ def _serializar_asset_asignado(asset: Asset) -> dict:
 
 
 def _serializar_persona(persona: Persona, ids_con_cuenta: set[str]) -> dict:
+    """Convert a Persona (and its assets) into a dict for the side panel.
+
+    `ids_con_cuenta` marks whether this person has a linked admin account.
+    """
     return {
         "id": persona.id,
         "codigo": persona.codigo,
@@ -80,8 +90,10 @@ def _serializar_persona(persona: Persona, ids_con_cuenta: set[str]) -> dict:
 
 
 def _preparar_formulario(form) -> None:
-    """Completa los choices (departamento, ubicación, modalidad) de un
-    formulario de Persona. Alta y edición comparten estos tres campos."""
+    """Fill in the choices (department, location, work mode) of a Persona form.
+
+    The create and edit forms share these three fields.
+    """
     locale = _locale()
     vacio = translate("personas.field_not_specified", locale)
     form.departamento.choices = [("", vacio)] + [
@@ -101,6 +113,13 @@ def _contexto_index(
     abrir_modal_nuevo: bool = False,
     id_editar_abierto: str | None = None,
 ) -> dict:
+    """Build the template context for the Personas page.
+
+    Includes computed totals, JSON-ready data for the client-side panel,
+    and the two forms — pass a bound form and `abrir_modal_nuevo` /
+    `id_editar_abierto` to re-render the page with a modal open after a
+    failed submit.
+    """
     db = SessionLocal()
     persona_repo = PersonaRepository(db)
     admin_repo = AdminRepository(db)
@@ -163,6 +182,7 @@ def index():
 
 @personas_bp.route("/personas/nuevo", methods=["POST"])
 def crear():
+    """Create a Persona. On failure, re-renders the page with the new-person modal open (400)."""
     db = SessionLocal()
     persona_repo = PersonaRepository(db)
 
@@ -194,6 +214,7 @@ def crear():
 
 @personas_bp.route("/personas/<id_persona>/editar", methods=["POST"])
 def editar(id_persona):
+    """Update a Persona. On failure, re-renders the page with its edit modal open (400)."""
     db = SessionLocal()
     persona_repo = PersonaRepository(db)
 
@@ -229,6 +250,12 @@ def editar(id_persona):
 
 @personas_bp.route("/personas/<id_persona>/eliminar", methods=["POST"])
 def eliminar(id_persona):
+    """Delete a Persona.
+
+    Blocked if the person has a linked admin account. Their assets are
+    left unassigned rather than deleted, and a warning is flashed if any
+    became orphaned.
+    """
     db = SessionLocal()
     persona_repo = PersonaRepository(db)
     admin_repo = AdminRepository(db)
@@ -239,10 +266,11 @@ def eliminar(id_persona):
 
     nombre = f"{persona.nombre} {persona.apellido}"
 
-    # Si tiene una cuenta de acceso vinculada, no se borra: en MySQL la FK
-    # (Admin.id_persona, sin ondelete) rechazaría el DELETE igual, pero acá
-    # lo cortamos antes con un mensaje claro en vez de dejar que explote un
-    # IntegrityError sin capturar. La cuenta se borra aparte, a mano.
+    # If there's a linked login account, don't delete: in MySQL the FK
+    # (Admin.id_persona, no ondelete) would reject the DELETE anyway, but
+    # here we stop it early with a clear message instead of letting an
+    # uncaught IntegrityError blow up. The account itself is deleted
+    # separately, by hand.
     if admin_repo.get_by_persona(persona.id) is not None:
         flash(translate("personas.error_has_account", _locale()).format(nombre=nombre), "error")
         return redirect(url_for("personas.index"))
@@ -263,9 +291,11 @@ def eliminar(id_persona):
 
 @personas_bp.route("/personas/<id_persona>/activos/<id_asset>/quitar", methods=["POST"])
 def quitar_activo(id_persona, id_asset):
-    """Desasigna un activo puntual de esta persona (no lo elimina: el activo
-    queda sin custodio, disponible). Se llama desde el drawer de Personas,
-    con confirmación previa del lado del cliente."""
+    """Unassign a single asset from this person (doesn't delete it).
+
+    The asset is left without a custodian, as Available. Called from the
+    Personas drawer, after the client asks for confirmation.
+    """
     db = SessionLocal()
     asset_repo = AssetRepository(db)
 

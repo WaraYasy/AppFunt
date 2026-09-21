@@ -1,4 +1,4 @@
-"""Funciones auxiliares expuestas a las plantillas Jinja."""
+"""Helper functions exposed to Jinja templates."""
 from app.models.assets import Asset, AssetCategoria
 from app.models.persona import Persona
 
@@ -14,7 +14,7 @@ ASSET_ICONS = {
 
 
 def estado_dot_class(asset: Asset) -> str:
-    """Clase CSS para el indicador de estado de un asset en listados."""
+    """Return the CSS class for an asset's status dot in list views."""
     if asset.id_persona:
         return "movement-item__dot--assigned"
     if asset.estado == "Disponible":
@@ -23,12 +23,12 @@ def estado_dot_class(asset: Asset) -> str:
 
 
 def asset_icon(asset: Asset) -> str:
-    """Icono de Material Symbols asociado a la categoría del asset."""
+    """Return the Material Symbols icon name for the asset's category."""
     return ASSET_ICONS.get(asset.categoria, "devices_other")
 
 
 def asset_status_modifier(asset: Asset) -> str:
-    """Modificador CSS ('assigned' | 'available' | 'neutral') según el estado del asset."""
+    """Return a CSS modifier ('assigned' | 'available' | 'neutral') for the asset's status."""
     if asset.id_persona:
         return "assigned"
     if asset.estado == "Disponible":
@@ -37,7 +37,7 @@ def asset_status_modifier(asset: Asset) -> str:
 
 
 def person_initials(persona: Persona | None) -> str:
-    """Iniciales de una persona para mostrar en un avatar. '—' si no hay persona."""
+    """Return a Persona's initials for an avatar. Returns '—' if `persona` is None."""
     if not persona:
         return "—"
     iniciales = (persona.nombre[:1] + persona.apellido[:1]).upper()

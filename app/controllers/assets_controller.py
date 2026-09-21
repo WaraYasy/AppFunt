@@ -1,4 +1,4 @@
-"""Controlador para la vista de Activos (inventario de hardware)."""
+"""Controller for the Assets view (hardware inventory)."""
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 from flask_login import login_required
 
@@ -14,8 +14,8 @@ from app.validacion import ValidationError
 
 assets_bp = Blueprint("assets", __name__)
 
-# Categorías con acceso rápido mediante pastillas de filtro en la vista,
-# junto con la clave de traducción de su etiqueta.
+# Categories with quick access through filter pills in the view, along
+# with the translation key for their label.
 CATEGORIAS_FILTRO = [
     (AssetCategoria.PORTATIL, "assets.filter_portatil"),
     (AssetCategoria.SERVIDOR, "assets.filter_servidor"),
@@ -23,13 +23,13 @@ CATEGORIAS_FILTRO = [
     (AssetCategoria.PERIFERICO, "assets.filter_periferico"),
 ]
 
-SIN_ASIGNAR = ""  # valor del <option>/campo id_persona que representa "sin custodio"
+SIN_ASIGNAR = ""  # value of the <option>/id_persona field that means "no custodian"
 
 
 @assets_bp.before_request
 @login_required
 def _requerir_login():
-    pass
+    """Require a logged-in admin for every route in this blueprint."""
 
 
 def _locale() -> str:
@@ -37,20 +37,26 @@ def _locale() -> str:
 
 
 def _limpio(valor: str | None) -> str | None:
-    """Recorta espacios y convierte vacío -> None. `valor` puede llegar None
-    (campo Optional ausente del formdata), por eso no se puede asumir str."""
+    """Strip whitespace and turn an empty value into None.
+
+    `valor` can arrive as None (an Optional field missing from the form
+    data), so it can't be assumed to be a str.
+    """
     return (valor or "").strip() or None
 
 
 def _guardar(db, form, accion) -> bool:
-    """Ejecuta `accion` (una llamada al repositorio). Si el modelo rechaza
-    algún dato (@validates, ver app/validacion.py), engancha el error al
-    campo correspondiente del form en vez de dejar que reviente en un 500 —
-    es la red de seguridad para lo que WTForms no llegó a filtrar antes."""
+    """Run `accion` (a repository call) and catch model-level validation errors.
+
+    If the model rejects some data (@validates, see app/validacion.py),
+    attach the error to the matching form field instead of letting it
+    turn into a 500 — this is the safety net for what WTForms didn't
+    already filter out.
+    """
     try:
         accion()
     except ValidationError as exc:
-        db.rollback()  # descarta cualquier setattr() ya aplicado antes del que falló
+        db.rollback()  # discard any setattr() already applied before the one that failed
         campo_form = getattr(form, exc.campo, None)
         if campo_form is not None:
             campo_form.errors.append(exc.mensaje)
@@ -61,7 +67,7 @@ def _guardar(db, form, accion) -> bool:
 
 
 def _serializar_asset(asset: Asset) -> dict:
-    """Convierte un Asset (y su custodio, si tiene) en un dict listo para el panel lateral."""
+    """Convert an Asset (and its custodian, if any) into a dict for the side panel."""
     custodio = asset.custodio
     return {
         "id": asset.id,
@@ -92,7 +98,7 @@ def _serializar_asset(asset: Asset) -> dict:
 
 
 def _choices_id_persona(persona_repo: PersonaRepository) -> list[tuple[str, str]]:
-    """Choices de custodio, comunes al form de alta y al de edición."""
+    """Return custodian choices, shared by the create and edit forms."""
     locale = _locale()
     return [(SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))] + [
         (persona.id, f"{persona.nombre} {persona.apellido}") for persona in persona_repo.get_all()
@@ -100,9 +106,11 @@ def _choices_id_persona(persona_repo: PersonaRepository) -> list[tuple[str, str]
 
 
 def _choices_ubicacion() -> list[tuple[str, str]]:
-    """Ubicación cerrada: mismas sedes que Persona (ver PersonaUbicacion),
-    para que la ubicación de un activo siempre sea una sede real y
-    consistente con las de la gente, no texto libre inventado."""
+    """Return location choices, closed to the same offices used by Persona.
+
+    This keeps an asset's location always a real, consistent office (see
+    PersonaUbicacion) instead of free-form text.
+    """
     vacio = translate("assets.field_not_specified", _locale())
     return [("", vacio)] + [(sede, sede) for sede in PersonaUbicacion.OPCIONES]
 
@@ -124,6 +132,13 @@ def _contexto_index(
     abrir_modal_nuevo: bool = False,
     id_editar_abierto: str | None = None,
 ) -> dict:
+    """Build the template context for the Assets page.
+
+    Includes computed totals, JSON-ready data for the client-side panel,
+    and the two forms — pass a bound form and `abrir_modal_nuevo` /
+    `id_editar_abierto` to re-render the page with a modal open after a
+    failed submit.
+    """
     db = SessionLocal()
     asset_repo = AssetRepository(db)
     persona_repo = PersonaRepository(db)
@@ -187,6 +202,7 @@ def index():
 
 @assets_bp.route("/activos/nuevo", methods=["POST"])
 def crear():
+    """Create an asset. On failure, re-renders the page with the new-asset modal open (400)."""
     db = SessionLocal()
     asset_repo = AssetRepository(db)
     persona_repo = PersonaRepository(db)
@@ -218,6 +234,7 @@ def crear():
 
 @assets_bp.route("/activos/<id_asset>/editar", methods=["POST"])
 def editar(id_asset):
+    """Update an asset. On failure, re-renders the page with its edit modal open (400)."""
     db = SessionLocal()
     asset_repo = AssetRepository(db)
     persona_repo = PersonaRepository(db)

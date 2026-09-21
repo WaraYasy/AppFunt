@@ -1,6 +1,6 @@
-"""Tema visual activo (claro/oscuro), inyectado como global de Jinja.
+"""Active visual theme (dark/light), injected as a Jinja global.
 
-El valor real se guarda en sesión y se alterna desde
+The actual value is stored in the session and switched from
 app/controllers/settings_controller.py.
 """
 from flask import session
@@ -10,6 +10,7 @@ SUPPORTED_THEMES = ("dark", "light")
 
 
 def current_theme() -> str:
+    """Return the active theme, falling back to DEFAULT_THEME if unset or invalid."""
     theme = session.get("theme", DEFAULT_THEME)
     return theme if theme in SUPPORTED_THEMES else DEFAULT_THEME
 

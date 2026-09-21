@@ -1,3 +1,4 @@
+"""Controller for the dashboard (home) page."""
 from flask import Blueprint, render_template
 from flask_login import login_required
 
@@ -11,7 +12,7 @@ base_bp = Blueprint("base", __name__)
 @base_bp.before_request
 @login_required
 def _requerir_login():
-    pass
+    """Require a logged-in admin for every route in this blueprint."""
 
 
 @base_bp.route("/")

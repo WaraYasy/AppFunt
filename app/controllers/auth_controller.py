@@ -1,4 +1,4 @@
-"""Controlador de autenticación: inicio/cierre de sesión contra Admin."""
+"""Authentication controller: log in and log out against Admin."""
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -18,8 +18,11 @@ def _locale() -> str:
 
 
 def _destino_seguro(candidato: str | None) -> str | None:
-    """Solo acepta un `next` que sea una ruta local (evita open redirect
-    si alguien arma un link con `?next=https://sitio-malicioso`)."""
+    """Only accept a `next` value that is a local path.
+
+    This prevents an open redirect if someone crafts a link with
+    `?next=https://malicious-site`.
+    """
     if not candidato:
         return None
     partes = urlsplit(candidato)
@@ -30,6 +33,7 @@ def _destino_seguro(candidato: str | None) -> str | None:
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Log in an admin. Re-renders the form with a 400 status on invalid credentials."""
     if current_user.is_authenticated:
         return redirect(url_for("base.index"))
 
