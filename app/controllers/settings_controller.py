@@ -4,6 +4,7 @@ Unlike a cycling toggle, each option is picked directly (the view shows
 the full list, see sidebar.html) — this also scales fine if
 SUPPORTED_LOCALES/SUPPORTED_THEMES grow past 2 values later on.
 """
+
 from flask import Blueprint, abort, redirect, request, session, url_for
 from flask_login import login_required
 

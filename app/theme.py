@@ -3,6 +3,7 @@
 The actual value is stored in the session and switched from
 app/controllers/settings_controller.py.
 """
+
 from flask import session
 
 DEFAULT_THEME = "dark"

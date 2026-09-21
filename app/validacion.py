@@ -16,6 +16,7 @@ specific form field. It should never turn into a 500, since forms.py
 already filters most of this beforehand — this layer is the safety net
 for data that doesn't go through the web form.
 """
+
 from email_validator import EmailNotValidError, validate_email
 
 

@@ -1,4 +1,5 @@
 """Data access repository for Admin (login accounts)."""
+
 from sqlalchemy.orm import Session
 
 from app.models.admin import Admin
@@ -20,5 +21,7 @@ class AdminRepository:
         Runs as a single query, so serializing the full Persona list
         doesn't trigger an N+1.
         """
-        filas = self.db.query(Admin.id_persona).filter(Admin.id_persona.isnot(None)).all()
+        filas = (
+            self.db.query(Admin.id_persona).filter(Admin.id_persona.isnot(None)).all()
+        )
         return {id_persona for (id_persona,) in filas}

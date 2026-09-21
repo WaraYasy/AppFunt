@@ -4,13 +4,23 @@ Persona is a business entity (who each employee is, what department
 they're in, which assets they're the custodian of), kept separate on
 purpose from Admin (the login account) — see app/models/admin.py.
 """
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database import Base, generar_uuid
-from app.validacion import validar_email, validar_longitud, validar_no_vacio, validar_opciones
+from app.validacion import (
+    validar_email,
+    validar_longitud,
+    validar_no_vacio,
+    validar_opciones,
+)
+
+if TYPE_CHECKING:
+    from app.models.assets import Asset
 
 
 class PersonaModalidad:

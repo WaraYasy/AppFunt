@@ -1,4 +1,5 @@
 """Controller for the Personas view (collaborator directory)."""
+
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 from flask_login import login_required
 
@@ -6,7 +7,12 @@ from app.database import SessionLocal
 from app.forms import EditarColaboradorForm, NuevoColaboradorForm
 from app.i18n import DEFAULT_LOCALE, translate
 from app.models.assets import Asset
-from app.models.persona import Persona, PersonaDepartamento, PersonaModalidad, PersonaUbicacion
+from app.models.persona import (
+    Persona,
+    PersonaDepartamento,
+    PersonaModalidad,
+    PersonaUbicacion,
+)
 from app.repositories.admin_repository import AdminRepository
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.persona_repository import PersonaRepository
@@ -144,8 +150,16 @@ def _contexto_index(
 
     filtros_personas = [
         {"valor": "all", "label_key": "personas.filter_all", "total": total_empleados},
-        {"valor": "with_assets", "label_key": "personas.filter_with_assets", "total": con_activos},
-        {"valor": "pending", "label_key": "personas.filter_pending", "total": sin_activos},
+        {
+            "valor": "with_assets",
+            "label_key": "personas.filter_with_assets",
+            "total": con_activos,
+        },
+        {
+            "valor": "pending",
+            "label_key": "personas.filter_pending",
+            "total": sin_activos,
+        },
         {
             "valor": "remote",
             "label_key": "personas.filter_remote",
@@ -162,7 +176,9 @@ def _contexto_index(
 
     return {
         "personas": personas,
-        "personas_json": [_serializar_persona(persona, ids_con_cuenta) for persona in personas],
+        "personas_json": [
+            _serializar_persona(persona, ids_con_cuenta) for persona in personas
+        ],
         "total_empleados": total_empleados,
         "con_activos": con_activos,
         "sin_activos": sin_activos,
@@ -227,7 +243,9 @@ def editar(id_persona):
 
     if form.validate_on_submit():
         # nombre/apellido no se pueden editar (ver forms.py).
-        if form.email.data and persona_repo.existe_email(form.email.data, excluir_id=persona.id):
+        if form.email.data and persona_repo.existe_email(
+            form.email.data, excluir_id=persona.id
+        ):
             form.email.errors.append("personas.error_duplicate_email")
         elif _guardar(
             db,
@@ -272,7 +290,10 @@ def eliminar(id_persona):
     # uncaught IntegrityError blow up. The account itself is deleted
     # separately, by hand.
     if admin_repo.get_by_persona(persona.id) is not None:
-        flash(translate("personas.error_has_account", _locale()).format(nombre=nombre), "error")
+        flash(
+            translate("personas.error_has_account", _locale()).format(nombre=nombre),
+            "error",
+        )
         return redirect(url_for("personas.index"))
 
     huerfanos = persona_repo.delete(persona)
@@ -305,5 +326,10 @@ def quitar_activo(id_persona, id_asset):
 
     nombre_asset = asset.nombre
     asset_repo.update(asset, id_persona=None)
-    flash(translate("personas.flash_asset_unassigned", _locale()).format(nombre=nombre_asset), "success")
+    flash(
+        translate("personas.flash_asset_unassigned", _locale()).format(
+            nombre=nombre_asset
+        ),
+        "success",
+    )
     return redirect(url_for("personas.index"))

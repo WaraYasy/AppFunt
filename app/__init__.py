@@ -1,4 +1,5 @@
 """Flask application factory."""
+
 from flask import Flask
 from flask_wtf import CSRFProtect
 

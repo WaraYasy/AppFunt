@@ -4,6 +4,7 @@ Each language lives in its own file inside app/translations/ (e.g.
 es.json, en.json). Templates read strings through the `t('section.key')`
 function, injected as a Jinja global.
 """
+
 import json
 from pathlib import Path
 

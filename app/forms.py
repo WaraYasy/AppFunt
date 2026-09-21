@@ -14,13 +14,16 @@ Persona's name/last name) are identity data set once, at creation, and
 they shouldn't change afterward — that's why they only exist in the
 create form, never in the edit one.
 """
+
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, PasswordField, RadioField, SelectField, StringField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
 
 class LoginForm(FlaskForm):
-    username = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
+    username = StringField(
+        validators=[DataRequired(message="forms.error_required"), Length(max=45)]
+    )
     password = PasswordField(validators=[DataRequired(message="forms.error_required")])
     remember = BooleanField()
 
@@ -51,9 +54,15 @@ class EditarActivoForm(FlaskForm):
 
 
 class NuevoColaboradorForm(FlaskForm):
-    nombre = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
-    apellido = StringField(validators=[DataRequired(message="forms.error_required"), Length(max=45)])
-    email = StringField(validators=[Optional(), Email(message="forms.error_email"), Length(max=120)])
+    nombre = StringField(
+        validators=[DataRequired(message="forms.error_required"), Length(max=45)]
+    )
+    apellido = StringField(
+        validators=[DataRequired(message="forms.error_required"), Length(max=45)]
+    )
+    email = StringField(
+        validators=[Optional(), Email(message="forms.error_email"), Length(max=120)]
+    )
     departamento = SelectField(validators=[Optional()])
     ubicacion = SelectField(validators=[Optional()])
     modalidad = RadioField(validators=[Optional()], default="")
@@ -65,7 +74,9 @@ class EditarColaboradorForm(FlaskForm):
     Name/last name aren't exposed here (see the module docstring).
     """
 
-    email = StringField(validators=[Optional(), Email(message="forms.error_email"), Length(max=120)])
+    email = StringField(
+        validators=[Optional(), Email(message="forms.error_email"), Length(max=120)]
+    )
     departamento = SelectField(validators=[Optional()])
     ubicacion = SelectField(validators=[Optional()])
     modalidad = RadioField(validators=[Optional()], default="")

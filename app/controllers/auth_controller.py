@@ -1,4 +1,5 @@
 """Authentication controller: log in and log out against Admin."""
+
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -50,7 +51,10 @@ def login():
         form.password.errors.append("auth.error_invalid_credentials")
 
     status = 400 if form.errors else 200
-    return render_template("login.html", form=form, anio_actual=datetime.now().year), status
+    return (
+        render_template("login.html", form=form, anio_actual=datetime.now().year),
+        status,
+    )
 
 
 @auth_bp.route("/logout", methods=["POST"])

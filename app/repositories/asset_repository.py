@@ -1,4 +1,5 @@
 """Data access repository for assets (tech equipment)."""
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -12,7 +13,9 @@ class AssetRepository:
 
     def create(self, **campos) -> Asset:
         """Create and save an Asset. Auto-generates `codigo` if it's not in `campos`."""
-        campos.setdefault("codigo", generar_codigo(self.db, Asset.codigo, prefijo="NX-"))
+        campos.setdefault(
+            "codigo", generar_codigo(self.db, Asset.codigo, prefijo="NX-")
+        )
         asset = Asset(**campos)
         self.db.add(asset)
         self.db.commit()
@@ -40,7 +43,9 @@ class AssetRepository:
             .first()
         )
 
-    def existe_numero_serie(self, numero_serie: str, excluir_id: str | None = None) -> bool:
+    def existe_numero_serie(
+        self, numero_serie: str, excluir_id: str | None = None
+    ) -> bool:
         """Check if `numero_serie` is already used by another asset.
 
         `excluir_id` skips a given asset, so editing it doesn't flag its

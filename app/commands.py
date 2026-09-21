@@ -3,6 +3,7 @@
 The app has no sign-up route: login accounts are created from here. This
 is what lets you create the first admin on a freshly deployed server.
 """
+
 import click
 from flask.cli import with_appcontext
 
@@ -13,7 +14,9 @@ from app.repositories.admin_repository import AdminRepository
 
 @click.command("create-admin")
 @click.argument("username")
-@click.password_option("--password", help="Si se omite, se pide por teclado sin mostrarlo.")
+@click.password_option(
+    "--password", help="Si se omite, se pide por teclado sin mostrarlo."
+)
 @with_appcontext
 def create_admin(username: str, password: str) -> None:
     """Create a login account for the app.

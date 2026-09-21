@@ -1,4 +1,5 @@
 """Flask-Login setup: who is the admin for the current session."""
+
 from flask_login import LoginManager
 
 from app.database import SessionLocal

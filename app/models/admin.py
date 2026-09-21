@@ -8,7 +8,9 @@ why the link to Persona is optional.
 Inherits from UserMixin (Flask-Login) to expose is_authenticated,
 is_active, is_anonymous, and get_id() without reimplementing them.
 """
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from flask_login import UserMixin
 from sqlalchemy import DateTime, ForeignKey, String
@@ -16,6 +18,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database import Base, generar_uuid
+
+if TYPE_CHECKING:
+    from app.models.persona import Persona
 
 
 class Admin(Base, UserMixin):
@@ -28,7 +33,9 @@ class Admin(Base, UserMixin):
     password_hash: Mapped[str] = mapped_column(String(255))
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    id_persona: Mapped[str | None] = mapped_column(String(36), ForeignKey("personas.id"))
+    id_persona: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("personas.id")
+    )
     persona: Mapped["Persona"] = relationship()
 
     def set_password(self, password_en_claro: str) -> None:

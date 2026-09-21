@@ -1,4 +1,5 @@
 """Data access repository for Persona (employee directory)."""
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 
@@ -13,7 +14,9 @@ class PersonaRepository:
 
     def create(self, **campos) -> Persona:
         """Create and save a Persona. Auto-generates `codigo` if it's not in `campos`."""
-        campos.setdefault("codigo", generar_codigo(self.db, Persona.codigo, prefijo="EMP-"))
+        campos.setdefault(
+            "codigo", generar_codigo(self.db, Persona.codigo, prefijo="EMP-")
+        )
         persona = Persona(**campos)
         self.db.add(persona)
         self.db.commit()
@@ -34,7 +37,9 @@ class PersonaRepository:
         Its assets aren't deleted: they're left without a custodian
         (id_persona=NULL). Returns how many assets were left that way.
         """
-        activos_asignados = self.db.query(Asset).filter(Asset.id_persona == persona.id).all()
+        activos_asignados = (
+            self.db.query(Asset).filter(Asset.id_persona == persona.id).all()
+        )
         for asset in activos_asignados:
             asset.id_persona = None
         self.db.delete(persona)

@@ -1,4 +1,5 @@
 """Controller for the Assets view (hardware inventory)."""
+
 from flask import Blueprint, abort, flash, redirect, render_template, session, url_for
 from flask_login import login_required
 
@@ -101,7 +102,8 @@ def _choices_id_persona(persona_repo: PersonaRepository) -> list[tuple[str, str]
     """Return custodian choices, shared by the create and edit forms."""
     locale = _locale()
     return [(SIN_ASIGNAR, translate("assets.modal_field_assignment_empty", locale))] + [
-        (persona.id, f"{persona.nombre} {persona.apellido}") for persona in persona_repo.get_all()
+        (persona.id, f"{persona.nombre} {persona.apellido}")
+        for persona in persona_repo.get_all()
     ]
 
 
@@ -115,13 +117,19 @@ def _choices_ubicacion() -> list[tuple[str, str]]:
     return [("", vacio)] + [(sede, sede) for sede in PersonaUbicacion.OPCIONES]
 
 
-def _preparar_form_nuevo(form: NuevoActivoForm, persona_repo: PersonaRepository) -> None:
-    form.categoria.choices = [(categoria, categoria) for categoria in AssetCategoria.OPCIONES]
+def _preparar_form_nuevo(
+    form: NuevoActivoForm, persona_repo: PersonaRepository
+) -> None:
+    form.categoria.choices = [
+        (categoria, categoria) for categoria in AssetCategoria.OPCIONES
+    ]
     form.ubicacion.choices = _choices_ubicacion()
     form.id_persona.choices = _choices_id_persona(persona_repo)
 
 
-def _preparar_form_editar(form: EditarActivoForm, persona_repo: PersonaRepository) -> None:
+def _preparar_form_editar(
+    form: EditarActivoForm, persona_repo: PersonaRepository
+) -> None:
     form.ubicacion.choices = _choices_ubicacion()
     form.id_persona.choices = _choices_id_persona(persona_repo)
 
@@ -211,7 +219,9 @@ def crear():
     _preparar_form_nuevo(form, persona_repo)
 
     if form.validate_on_submit():
-        if form.numero_serie.data and asset_repo.existe_numero_serie(form.numero_serie.data):
+        if form.numero_serie.data and asset_repo.existe_numero_serie(
+            form.numero_serie.data
+        ):
             form.numero_serie.errors.append("assets.error_duplicate_serial")
         elif _guardar(
             db,

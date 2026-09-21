@@ -1,5 +1,7 @@
 """Asset model: the company's tech equipment."""
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
@@ -7,6 +9,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from app.database import Base, generar_uuid
 from app.models.persona import PersonaUbicacion
 from app.validacion import validar_longitud, validar_no_vacio, validar_opciones
+
+if TYPE_CHECKING:
+    from app.models.persona import Persona
 
 
 class AssetCategoria:
@@ -30,14 +35,18 @@ class Asset(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
     codigo: Mapped[str | None] = mapped_column(String(10), unique=True, index=True)
-    id_persona: Mapped[str | None] = mapped_column(String(36), ForeignKey("personas.id"))
+    id_persona: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("personas.id")
+    )
     nombre: Mapped[str] = mapped_column(String(100))
     categoria: Mapped[str] = mapped_column(String(20), default=AssetCategoria.OTRO)
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     estado: Mapped[str] = mapped_column(String(20), default="Disponible")
 
     # Extended tech specs (optional: not every asset has them filled in)
-    numero_serie: Mapped[str | None] = mapped_column(String(60), unique=True, index=True)
+    numero_serie: Mapped[str | None] = mapped_column(
+        String(60), unique=True, index=True
+    )
     cpu: Mapped[str | None] = mapped_column(String(120))
     ram: Mapped[str | None] = mapped_column(String(60))
     almacenamiento: Mapped[str | None] = mapped_column(String(120))
@@ -62,8 +71,13 @@ class Asset(Base):
         return validar_opciones(key, value, PersonaUbicacion.OPCIONES)
 
     @validates(
-        "codigo", "numero_serie", "estado", "cpu", "ram",
-        "almacenamiento", "sistema_operativo",
+        "codigo",
+        "numero_serie",
+        "estado",
+        "cpu",
+        "ram",
+        "almacenamiento",
+        "sistema_operativo",
     )
     def _validar_opcionales(self, key, value):
         return validar_longitud(self, key, value)

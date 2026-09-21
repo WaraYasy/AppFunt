@@ -1,4 +1,5 @@
 """Helper functions exposed to Jinja templates."""
+
 from app.models.assets import Asset, AssetCategoria
 from app.models.persona import Persona
 
