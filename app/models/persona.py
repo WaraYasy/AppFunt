@@ -1,9 +1,8 @@
-"""Modelo de Persona: directorio de empleados de la empresa.
+"""Persona model: the company's employee directory.
 
-Persona es una entidad de negocio (quién es cada empleado, en qué
-departamento está, de qué activos es custodio) separada a propósito de
-Admin (la cuenta con la que se inicia sesión en la aplicación) — ver
-app/models/admin.py.
+Persona is a business entity (who each employee is, what department
+they're in, which assets they're the custodian of), kept separate on
+purpose from Admin (the login account) — see app/models/admin.py.
 """
 from datetime import datetime
 
@@ -15,7 +14,7 @@ from app.validacion import validar_email, validar_longitud, validar_no_vacio, va
 
 
 class PersonaModalidad:
-    """Modalidad de trabajo del colaborador."""
+    """Work mode of the collaborator."""
 
     REMOTO = "Remoto"
     PRESENCIAL = "Presencial"
@@ -24,7 +23,7 @@ class PersonaModalidad:
 
 
 class PersonaDepartamento:
-    """Departamentos válidos — lista cerrada."""
+    """Valid departments — a closed list."""
 
     INGENIERIA = "Ingeniería"
     DISENO = "Diseño"
@@ -38,7 +37,7 @@ class PersonaDepartamento:
 
 
 class PersonaUbicacion:
-    """Sedes válidas — lista cerrada."""
+    """Valid office locations — a closed list."""
 
     CENTRAL = "Central"
     SUCURSAL_1 = "Sucursal 1"
@@ -47,6 +46,8 @@ class PersonaUbicacion:
 
 
 class Persona(Base):
+    """Represent a company employee and asset custodian."""
+
     __tablename__ = "personas"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
@@ -54,11 +55,11 @@ class Persona(Base):
     apellido: Mapped[str] = mapped_column(String(45))
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    # Identificación y contacto (opcionales: no todo el personal legado los tiene cargados)
+    # Identification and contact info (optional: some legacy staff records lack them)
     email: Mapped[str | None] = mapped_column(String(120), unique=True)
     codigo: Mapped[str | None] = mapped_column(String(10), unique=True, index=True)
 
-    # Datos organizativos (opcionales, usados en la ficha de activo asignado)
+    # Organizational data (optional, used on the assigned asset's detail view)
     departamento: Mapped[str | None] = mapped_column(String(80))
     ubicacion: Mapped[str | None] = mapped_column(String(120))
     modalidad: Mapped[str | None] = mapped_column(String(20))

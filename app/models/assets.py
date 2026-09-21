@@ -1,4 +1,4 @@
-"""Modelo de assets (equipo tecnológico) de la empresa."""
+"""Asset model: the company's tech equipment."""
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String
@@ -10,7 +10,7 @@ from app.validacion import validar_longitud, validar_no_vacio, validar_opciones
 
 
 class AssetCategoria:
-    """Categorías disponibles para clasificar un asset."""
+    """Available categories to classify an asset."""
 
     PORTATIL = "Portátil"
     SOBREMESA = "Sobremesa"
@@ -24,6 +24,8 @@ class AssetCategoria:
 
 
 class Asset(Base):
+    """Represent a piece of tech equipment tracked by the company."""
+
     __tablename__ = "assets"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
@@ -34,7 +36,7 @@ class Asset(Base):
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     estado: Mapped[str] = mapped_column(String(20), default="Disponible")
 
-    # Ficha técnica ampliada (opcional: no todos los activos la tienen completa)
+    # Extended tech specs (optional: not every asset has them filled in)
     numero_serie: Mapped[str | None] = mapped_column(String(60), unique=True, index=True)
     cpu: Mapped[str | None] = mapped_column(String(120))
     ram: Mapped[str | None] = mapped_column(String(60))

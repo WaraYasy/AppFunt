@@ -1,12 +1,12 @@
-"""Modelo de Admin: cuenta de acceso a la aplicación.
+"""Admin model: a login account for the app.
 
-Separado de Persona a propósito: no todo el personal de la empresa
-necesita poder entrar al sistema (hoy solo IT), y una cuenta de acceso
-no siempre corresponde a alguien del directorio (p. ej. una cuenta de
-servicio). Por eso el vínculo con Persona es opcional.
+Kept separate from Persona on purpose: not everyone on staff needs to
+log in to the system (today only IT does), and a login account doesn't
+always match someone in the directory (e.g. a service account). That's
+why the link to Persona is optional.
 
-Hereda de UserMixin (Flask-Login) para exponer is_authenticated,
-is_active, is_anonymous y get_id() sin tener que reimplementarlos.
+Inherits from UserMixin (Flask-Login) to expose is_authenticated,
+is_active, is_anonymous, and get_id() without reimplementing them.
 """
 from datetime import datetime
 
@@ -19,6 +19,8 @@ from app.database import Base, generar_uuid
 
 
 class Admin(Base, UserMixin):
+    """Represent a login account used to access the app."""
+
     __tablename__ = "admins"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generar_uuid)
@@ -30,9 +32,11 @@ class Admin(Base, UserMixin):
     persona: Mapped["Persona"] = relationship()
 
     def set_password(self, password_en_claro: str) -> None:
+        """Hash the given password and store it."""
         self.password_hash = generate_password_hash(password_en_claro)
 
     def check_password(self, password_en_claro: str) -> bool:
+        """Check the given password against the stored hash."""
         return check_password_hash(self.password_hash, password_en_claro)
 
     def __repr__(self) -> str:
