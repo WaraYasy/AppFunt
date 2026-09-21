@@ -1,3 +1,4 @@
+"""Application configuration, loaded from environment variables."""
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -22,6 +23,6 @@ class Config:
     SECRET_KEY = SECRET_KEY
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
-    # Duración de la cookie de "recordar este dispositivo" (login.html,
-    # checkbox `remember`). Ver app/auth.py / app/controllers/auth_controller.py.
+    # Duration of the "remember this device" cookie (login.html,
+    # `remember` checkbox). See app/auth.py / app/controllers/auth_controller.py.
     REMEMBER_COOKIE_DURATION = timedelta(days=30)

@@ -1,4 +1,4 @@
-"""Configuración de Flask-Login: quién es el admin de la sesión actual."""
+"""Flask-Login setup: who is the admin for the current session."""
 from flask_login import LoginManager
 
 from app.database import SessionLocal
@@ -10,6 +10,7 @@ login_manager.login_view = "auth.login"
 
 @login_manager.user_loader
 def load_user(user_id: str) -> Admin | None:
+    """Load the admin for the given session id, used by Flask-Login."""
     return SessionLocal().get(Admin, user_id)
 
 

@@ -1,8 +1,8 @@
-"""Sistema de traducciones basado en archivos JSON por idioma.
+"""Translation system based on one JSON file per language.
 
-Cada idioma vive en su propio archivo dentro de app/translations/
-(por ejemplo es.json, en.json). Las plantillas acceden a las cadenas
-mediante la función `t('seccion.clave')`, inyectada como global de Jinja.
+Each language lives in its own file inside app/translations/ (e.g.
+es.json, en.json). Templates read strings through the `t('section.key')`
+function, injected as a Jinja global.
 """
 import json
 from pathlib import Path
@@ -23,7 +23,11 @@ def _load(locale: str) -> dict:
 
 
 def translate(key: str, locale: str = DEFAULT_LOCALE) -> str:
-    """Resuelve una clave con notación de puntos (ej. 'nav.dashboard')."""
+    """Resolve a dot-notation key (e.g. 'nav.dashboard') to its translated string.
+
+    Falls back to DEFAULT_LOCALE if `locale` isn't supported, and returns
+    the key itself if it's missing from the translation file.
+    """
     locale = locale if locale in SUPPORTED_LOCALES else DEFAULT_LOCALE
     value: dict | str = _load(locale)
 
@@ -36,7 +40,7 @@ def translate(key: str, locale: str = DEFAULT_LOCALE) -> str:
 
 
 def init_app(app):
-    """Registra `t()` y `current_locale` como disponibles en todas las plantillas."""
+    """Register `t()` and `current_locale` as globals available in every template."""
 
     @app.context_processor
     def inject_translator():

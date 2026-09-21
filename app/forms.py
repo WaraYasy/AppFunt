@@ -1,18 +1,18 @@
-"""Formularios (Flask-WTF) para las altas/ediciones de Activos y Personas.
+"""Forms (Flask-WTF) for creating and editing Assets and Personas.
 
-Los choices de campos dependientes de datos (categoría, custodio,
-departamento, ubicación, modalidad) se completan en el controlador antes
-de validar, no acá: este módulo no toca la base de datos.
+Choices for data-dependent fields (category, custodian, department,
+location, work mode) are filled in by the controller before validation,
+not here: this module never touches the database.
 
-Los campos no llevan `label` en español: el texto visible se pasa desde
-la plantilla vía `t()` (ver macros/forms.html), para que el formulario
-respete el idioma activo igual que el resto de la UI.
+Fields don't get a Spanish `label`: the visible text comes from the
+template via `t()` (see macros/forms.html), so the form follows the
+active language just like the rest of the UI.
 
-Los forms de edición NO heredan de los de alta: a propósito exponen menos
-campos. Nombre/categoría/número de serie de un activo (y nombre/apellido
-de una persona) son datos de identidad que se fijan una vez, al dar de
-alta, y no tiene sentido que cambien después — por eso solo existen en
-el form de alta, nunca en el de edición.
+Edit forms do NOT inherit from the create forms: they expose fewer
+fields on purpose. An asset's name/category/serial number (and a
+Persona's name/last name) are identity data set once, at creation, and
+they shouldn't change afterward — that's why they only exist in the
+create form, never in the edit one.
 """
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, PasswordField, RadioField, SelectField, StringField
@@ -36,9 +36,11 @@ class NuevoActivoForm(FlaskForm):
 
 
 class EditarActivoForm(FlaskForm):
-    """Solo lo que tiene sentido que cambie con el tiempo: dónde está, quién
-    lo tiene, y su ficha técnica. Nombre/categoría/serie no se exponen acá
-    (ver docstring del módulo)."""
+    """Only what makes sense to change over time.
+
+    Location, who has it, and its technical specs. Name/category/serial
+    aren't exposed here (see the module docstring).
+    """
 
     ubicacion = SelectField(validators=[Optional()])
     id_persona = SelectField(validators=[Optional()])
@@ -58,8 +60,10 @@ class NuevoColaboradorForm(FlaskForm):
 
 
 class EditarColaboradorForm(FlaskForm):
-    """Solo lo que tiene sentido que cambie: contacto y datos organizativos.
-    Nombre/apellido no se exponen acá (ver docstring del módulo)."""
+    """Only what makes sense to change: contact and organizational data.
+
+    Name/last name aren't exposed here (see the module docstring).
+    """
 
     email = StringField(validators=[Optional(), Email(message="forms.error_email"), Length(max=120)])
     departamento = SelectField(validators=[Optional()])

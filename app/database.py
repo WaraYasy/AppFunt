@@ -1,7 +1,7 @@
-"""Configuración de la base de datos con SQLAlchemy 2.0.
+"""Database setup with SQLAlchemy 2.0.
 
-Define el engine, la fábrica de sesiones y la clase Base de la que
-heredan todos los modelos.
+Defines the engine, the session factory, and the Base class that every
+model inherits from.
 """
 import random
 import uuid
@@ -29,20 +29,22 @@ class Base(DeclarativeBase):
 
 
 def generar_uuid() -> str:
-    """Genera un identificador único (UUID4) como string de 36 caracteres.
+    """Generate a unique id (UUID4) as a 36-character string.
 
-    Se usa como valor por defecto de la PK en los modelos, para no depender
-    de que quien crea el objeto recuerde asignar un id único a mano.
+    Used as the default primary key value in the models, so whoever
+    creates an object doesn't have to remember to set a unique id by hand.
     """
     return str(uuid.uuid4())
 
 
 def generar_codigo(db: Session, columna, prefijo: str, digitos: int = 4) -> str:
-    """Genera un código corto único (ej. 'NX-8821') para una columna con constraint unique.
+    """Generate a short unique code (e.g. 'NX-8821') for a unique column.
 
-    `columna` es el atributo de clase mapeado (ej. Asset.codigo). Reintenta con
-    un nuevo sufijo aleatorio si hay colisión; con `digitos=4` el espacio de
-    valores (10 000 combinaciones) hace la colisión muy poco probable.
+    `columna` is the mapped class attribute (e.g. Asset.codigo). Retries with
+    a new random suffix on collision; with `digitos=4` the value space
+    (10,000 combinations) makes a collision very unlikely.
+
+    Raises RuntimeError if no unique code is found after 20 attempts.
     """
     for _ in range(20):
         sufijo = str(random.randint(0, 10**digitos - 1)).zfill(digitos)

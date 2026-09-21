@@ -1,3 +1,4 @@
+"""Flask application factory."""
 from flask import Flask
 from flask_wtf import CSRFProtect
 
@@ -8,10 +9,11 @@ csrf = CSRFProtect()
 
 
 def create_app(config_class=Config):
+    """Create and configure the Flask app: extensions, blueprints, and tables."""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    from app import models  # noqa: F401  registra los modelos en Base
+    from app import models  # noqa: F401  register the models with Base
 
     Base.metadata.create_all(bind=engine)
 
