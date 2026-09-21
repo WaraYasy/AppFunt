@@ -31,10 +31,11 @@ def create_app(config_class=Config):
     app.register_blueprint(settings_bp)
     app.register_blueprint(auth_bp)
 
-    from app import auth, i18n, template_helpers, theme
+    from app import auth, commands, i18n, template_helpers, theme
 
     csrf.init_app(app)
     auth.init_app(app)
+    commands.init_app(app)
     i18n.init_app(app)
     template_helpers.init_app(app)
     theme.init_app(app)
