@@ -1,20 +1,22 @@
 # AppFunt
 
-Aplicación web en Flask para gestionar personas y activos (assets).
+> [README en español](README.es.md)
+
+Flask web app to manage personas (employees) and assets (tech equipment).
 
 ## Stack
 
 - Flask 3
 - SQLAlchemy 2 + PyMySQL (MySQL)
-- Flask-Login (autenticación)
-- Flask-WTF (formularios y CSRF)
+- Flask-Login (authentication)
+- Flask-WTF (forms and CSRF)
 
-## Requisitos
+## Requirements
 
 - Python 3.11+
 - MySQL
 
-## Instalación
+## Installation
 
 ```bash
 python -m venv venv
@@ -22,15 +24,15 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Para desarrollo (incluye black, isort, ruff):
+For development (includes black, isort, ruff):
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-## Configuración
+## Configuration
 
-Copia `.env.example` a `.env` y completa los valores:
+Copy `.env.example` to `.env` and fill in the values:
 
 ```
 FLASK_ENV=development
@@ -38,39 +40,39 @@ SECRET_KEY=cambia-esto
 DATABASE_URL=mysql+pymysql://usuario:password@localhost:3306/appwara
 ```
 
-`SECRET_KEY` es obligatoria: firma las cookies de sesión y CSRF. Genera una propia con:
+`SECRET_KEY` is required: it signs session and CSRF cookies. Generate your own with:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-## Base de datos
+## Database
 
-Las tablas se crean automáticamente al levantar la app (`Base.metadata.create_all`), no hay migraciones. Ver [docs/produccion.md](docs/produccion.md) para el detalle y el checklist de despliegue.
+Tables are created automatically when the app starts (`Base.metadata.create_all`) — there are no migrations. See [docs/produccion.md](docs/produccion.md) for details and the deployment checklist.
 
-## Uso
+## Usage
 
-Levantar la app:
+Start the app:
 
 ```bash
 python run.py
 ```
 
-Crear la primera cuenta de acceso:
+Create the first login account:
 
 ```bash
 flask create-admin <username>
 ```
 
-## Estructura
+## Structure
 
 ```
 app/
-  controllers/    rutas (blueprints)
-  models/         modelos de SQLAlchemy
-  repositories/   acceso a datos
-  templates/       vistas Jinja
-  static/          assets estáticos
+  controllers/    routes (blueprints)
+  models/         SQLAlchemy models
+  repositories/   data access
+  templates/       Jinja views
+  static/          static assets
   translations/    i18n
-docs/              documentación (despliegue, etc.)
+docs/              documentation (deployment, etc.)
 ```
