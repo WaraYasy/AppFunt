@@ -210,7 +210,14 @@ def index():
 
 @assets_bp.route("/activos/nuevo", methods=["POST"])
 def crear():
-    """Create an asset. On failure, re-renders the page with the new-asset modal open (400)."""
+    """Create an asset. On failure, re-renders the page with the new-asset modal open (400).
+
+    The serial number uniqueness check happens here, not in a model
+    @validates. A @validates method only sees the value being set on one
+    instance — it has no way to query other rows — so any check that
+    needs to compare against the rest of the table belongs in the
+    controller/repository layer instead.
+    """
     db = SessionLocal()
     asset_repo = AssetRepository(db)
     persona_repo = PersonaRepository(db)
@@ -282,6 +289,12 @@ def editar(id_asset):
 
 @assets_bp.route("/activos/<id_asset>/eliminar", methods=["POST"])
 def eliminar(id_asset):
+    """Delete an asset for good.
+
+    Unlike Persona, an Asset has no dependents (see
+    AssetRepository.delete), so there's no FK to block the delete and no
+    orphan case to handle — it's a plain hard delete.
+    """
     db = SessionLocal()
     asset_repo = AssetRepository(db)
 

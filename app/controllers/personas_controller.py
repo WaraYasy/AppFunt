@@ -198,7 +198,13 @@ def index():
 
 @personas_bp.route("/personas/nuevo", methods=["POST"])
 def crear():
-    """Create a Persona. On failure, re-renders the page with the new-person modal open (400)."""
+    """Create a Persona. On failure, re-renders the page with the new-person modal open (400).
+
+    The email uniqueness check happens here, not in a model @validates.
+    A @validates method only sees the value for one instance and can't
+    query other rows, so any check against the rest of the table has to
+    live in the controller/repository layer instead.
+    """
     db = SessionLocal()
     persona_repo = PersonaRepository(db)
 
